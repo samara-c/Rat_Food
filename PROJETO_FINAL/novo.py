@@ -44,11 +44,14 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 GREEN = (0,255,0)
 TAMANHO_FONTE_FASES = 200
-j = 0
+
 movimento_positivo = False
 
-placar = pygame.image.load('elements//cloud.png').convert()
-placar = pygame.transform.scale(placar, (300, 100)) 
+relogio = pygame.image.load('elements//clock.png').convert_alpha()
+relogio = pygame.transform.scale(relogio, (100, 40)) 
+
+placar = pygame.image.load('elements//cloud.png').convert_alpha()
+placar = pygame.transform.scale(placar, (190, 70)) 
 
 background = pygame.image.load('bg11.jpg').convert()
 background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
@@ -146,8 +149,6 @@ class Inimigos():
 
   def lancaInimigo(self):
     pos_inicial_y = randint(100,500)
-    screen.blit(self.inimigo1, (400,300)) 
-    screen.blit(self.inimigo2, (200,300)) 
 
 class Bonus():
   def __init__(self):
@@ -164,9 +165,15 @@ class Bonus():
     self.bonus3 = pygame.transform.scale(self.bonus3, (70, 70 ))
     self.pontosBonus3 = 70
     
+    self.bonus4 = pygame.image.load(self.path+'strawberry.png').convert_alpha()
+    self.bonus4 = pygame.transform.scale(self.bonus4, (60, 60 ))
+    
     bonus.append(self.bonus1)
     bonus.append(self.bonus2)
     bonus.append(self.bonus3)
+    bonus.append(self.bonus4)
+    
+    self.iterador = -1
    
   
   def deletaBonus(self):
@@ -176,26 +183,33 @@ class Bonus():
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
+        print(str(len(vetor_bonus)))
+        print(str(len(vetor_bonus_posicao_x)))
       c+=1  
   
-  def sorteiaBonus(self, j):
-    num = randint(0, 1000)
-    if j==num or j > 1000:
+  def sorteiaBonus(self):
+    print(str(self.iterador))
+    limite = 50
+    num = randint(0,50)
+    if self.iterador==num:
       bonusObj.lancaBonus()
-      j = -1
-  
+      print(str(self.iterador))
+      print(str(num))
+      print(str(len(vetor_bonus)))
+      self.iterador = -1
+    if self.iterador>limite:
+      self.iterador=-1  
   
   def lancaBonus(self):
-    posicao = randint(100,500)
-    bonusPosicao = randint(0,2)
+    posicao = randint(60,540)
+    bonusPosicao = randint(0,len(bonus)-1)
     vetor_bonus.append(bonus[bonusPosicao])
     vetor_bonus_posicao_y.append(posicao)
     vetor_bonus_posicao_x.append(1250)
       
-  def moveBonus(self):
+  def moveBonus(self, k):
     i = 0
-    k = 10
-    if (len(vetor_bonus) < k): 
+    if (len(vetor_bonus) < k+1): 
       while i<(len(vetor_bonus)):
         vetor_bonus_posicao_x[i] += VELOCIDADE_BONUS
         screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
@@ -247,9 +261,9 @@ while True:
 #         elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
 #             pos_y +=10
    
-    j+=1
+    bonusObj.iterador+=1
     bonusObj.deletaBonus()
-    bonusObj.sorteiaBonus(j)
+    bonusObj.sorteiaBonus()
     
       
               
@@ -265,10 +279,12 @@ while True:
     screen.blit(sprites[pos_sprite], (pos_x, pos_y)) 
     #elementos.escreverNomeFase()
     inimigos.lancaInimigo()
-    bonusObj.moveBonus()
-    screen.blit(placar,(800,60))
-    timer1 = elementos.font.render('Time ' + str(temporizador), True, (YELLOW))
-    screen.blit(timer1, (1000, 50))  
+    bonusObj.moveBonus(3)
+    screen.blit(relogio, (835,30))
+    screen.blit(placar,(980,15))
+    screen.blit(bonus[3], (300,300))
+    timer1 = elementos.font.render(str(temporizador), True, (BLACK))
+    screen.blit(timer1, (915, 35))  
     pygame.display.flip()      
     pos_sprite+=1
     clock.tick(60)
