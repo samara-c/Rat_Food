@@ -61,7 +61,7 @@ CLOCKTICK = pygame.USEREVENT+1
 pygame.time.set_timer(CLOCKTICK, 1000) 
 temporizador = 60
 
-
+lancador_bonus = True
 
 
 
@@ -189,6 +189,7 @@ class Bonus():
   
   def sorteiaBonus(self):
     print(str(self.iterador))
+    print(str(len(vetor_bonus)))
     limite = 50
     num = randint(0,50)
     if self.iterador==num:
@@ -201,11 +202,13 @@ class Bonus():
       self.iterador=-1  
   
   def lancaBonus(self):
-    posicao = randint(60,540)
-    bonusPosicao = randint(0,len(bonus)-1)
-    vetor_bonus.append(bonus[bonusPosicao])
-    vetor_bonus_posicao_y.append(posicao)
-    vetor_bonus_posicao_x.append(1250)
+    print(str(lancador_bonus))
+    if lancador_bonus == True:
+      posicao = randint(60,540)
+      bonusPosicao = randint(0,len(bonus)-1)
+      vetor_bonus.append(bonus[bonusPosicao])
+      vetor_bonus_posicao_y.append(posicao)
+      vetor_bonus_posicao_x.append(1250)
       
   def moveBonus(self, k):
     i = 0
@@ -260,6 +263,11 @@ while True:
 #             
 #         elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
 #             pos_y +=10
+   
+    if (len(vetor_bonus) < 3):
+      lancador_bonus = True
+    else:
+      lancador_bonus = False  
    
     bonusObj.iterador+=1
     bonusObj.deletaBonus()
