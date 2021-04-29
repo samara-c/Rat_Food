@@ -5,10 +5,10 @@ from random import *
 
 pygame.init()
 
- 
+
 
 TAMANHO_TELA_X = 1200
-TAMANHO_TELA_Y = 600
+TAMANHO_TELA_Y = 650
 
 TAMANHO_INIMIGO_X = 100
 TAMANHO_INIMIGO_Y = 100
@@ -18,8 +18,8 @@ VELOCIDADE_BONUS = - 15
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
 
-TAMANHO_PLAYER_X = 200
-TAMANHO_PLAYER_Y = 200
+TAMANHO_PLAYER_X = 150
+TAMANHO_PLAYER_Y = 150
 VELOCIDADE_PLAYER = 15
 
 vator_bonus_pontos = []
@@ -33,7 +33,7 @@ inimigos = []
 pos_inimigos = []
 sprites = []
 pos_sprite = 0
-pos_x = 40
+pos_x = 35
 pos_y = 100
 clock = pygame.time.Clock()
 
@@ -48,13 +48,13 @@ TAMANHO_FONTE_FASES = 200
 movimento_positivo = False
 
 relogio = pygame.image.load('elements//clock.png').convert_alpha()
-relogio = pygame.transform.scale(relogio, (100, 40)) 
+relogio = pygame.transform.scale(relogio, (90, 40)) 
 
 placar = pygame.image.load('elements//cloud.png').convert_alpha()
 placar = pygame.transform.scale(placar, (190, 70)) 
 
 background = pygame.image.load('bg11.jpg').convert()
-background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
+background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50)) 
 
 
 CLOCKTICK = pygame.USEREVENT+1
@@ -100,16 +100,18 @@ class Player():
 class ElementosTela() :
   
   def __init__(self):
+    self.path = "fonts//"
+    
+    self.font_1 = pygame.font.Font(self.path+"Candy Beans.otf", 20)
+    self.font_2 = pygame.font.Font(self.path+"No Virus.ttf", 20)
+    self.font_3 = pygame.font.Font(self.path+"MilkyNice.ttf", 30)
     self.font_fases = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
-    self.text_fases = self.font_fases.render("FASE 1", True, (WHITE)) 
+    
     
     self.font_fases2 = pygame.font.Font("fonts//Cotton Cloud.ttf", TAMANHO_FONTE_FASES)
     self.font_fases3 = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
-    self.text_fases2 = self.font_fases2.render("Fase 1", True, (WHITE)) 
-    self.text_fases3 = self.font_fases3.render("FASE 1", True, (BLACK)) 
-    
-    self.font = pygame.font.SysFont('sans',30)
+    self.font = pygame.font.SysFont('sans',26)
   
   def escreverNomeFase(self):
 #     screen.blit(self.text_fases3, (410,200))
@@ -154,24 +156,31 @@ class Bonus():
   def __init__(self):
     self.path = "bonus//"
     self.bonus1 = pygame.image.load(self.path+'banana.png').convert_alpha()
-    self.bonus1 = pygame.transform.scale(self.bonus1, (70, 70 ))
-    self.pontosBonus1 = 50
+    self.bonus1 = pygame.transform.scale(self.bonus1, (50, 50 ))
+    self.pontosBonus1 = 10
     
     self.bonus2 = pygame.image.load(self.path+'apple.png').convert_alpha()
-    self.bonus2 = pygame.transform.scale(self.bonus2, (70, 70 ))
-    self.pontosBonus2 = 55
+    self.bonus2 = pygame.transform.scale(self.bonus2, (40, 40 ))
+    self.pontosBonus2 = 15
     
     self.bonus3 = pygame.image.load(self.path+'grape.png').convert_alpha()
-    self.bonus3 = pygame.transform.scale(self.bonus3, (70, 70 ))
-    self.pontosBonus3 = 70
+    self.bonus3 = pygame.transform.scale(self.bonus3, (50, 50 ))
+    self.pontosBonus3 = 15
     
     self.bonus4 = pygame.image.load(self.path+'strawberry.png').convert_alpha()
-    self.bonus4 = pygame.transform.scale(self.bonus4, (60, 60 ))
+    self.bonus4 = pygame.transform.scale(self.bonus4, (30, 30 ))
+    self.pontosBonus4 = 30
     
+    #Define a quantidade de frutas no vetor, As frutas que valem mais pontos sao mais raras
+    bonus.append(self.bonus1)
+    bonus.append(self.bonus1)
     bonus.append(self.bonus1)
     bonus.append(self.bonus2)
+    bonus.append(self.bonus2)
+    bonus.append(self.bonus3)
     bonus.append(self.bonus3)
     bonus.append(self.bonus4)
+    
     
     self.iterador = -1
    
@@ -251,11 +260,14 @@ while True:
         pos_y -= VELOCIDADE_PLAYER  
     if movimento_positivo == False:
         pos_y += VELOCIDADE_PLAYER+10 
+   
+    if temporizador == 0:
+      break
       
-    if pos_y <10:
-      pos_y =10
-    if pos_y > 390:
-      pos_y = 390   
+    if pos_y <60:
+      pos_y =60
+    if pos_y > 490:
+      pos_y = 490   
      
 #       elif event.type == pygame.KEYDOWN:
 #         if event.key == pygame.K_w or event.key == pygame.K_UP :
@@ -281,18 +293,22 @@ while True:
           pos_sprite = 0
         
     
-    screen.blit(background,[0,0])
+    screen.blit(background,[0,50])
+    pygame.draw.rect(screen, BLACK,(0,0,1200,50))
     
     #pegar tamanho varaiavel, ver se ja liberou espaco, depois blitar proxima imagem. colocar velocidade movimento, *criar vetores com nuvem, controlar elas
     screen.blit(sprites[pos_sprite], (pos_x, pos_y)) 
     #elementos.escreverNomeFase()
     inimigos.lancaInimigo()
     bonusObj.moveBonus(3)
-    screen.blit(relogio, (835,30))
-    screen.blit(placar,(980,15))
-    screen.blit(bonus[3], (300,300))
-    timer1 = elementos.font.render(str(temporizador), True, (BLACK))
-    screen.blit(timer1, (915, 35))  
+    screen.blit(relogio, (835,7))
+    #screen.blit(placar,(980,15))
+    timer1 = elementos.font_1.render(str(temporizador), True, (WHITE))
+    screen.blit(timer1, (915, 12))
+    fase = elementos.font_1.render("Fase 1", True, (WHITE)) 
+    screen.blit(fase, (100, 10)) 
+    fase = elementos.font_3.render("Fase 1", True, (WHITE)) 
+    screen.blit(fase, (300, 10)) 
     pygame.display.flip()      
     pos_sprite+=1
     clock.tick(60)
