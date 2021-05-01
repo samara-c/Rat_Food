@@ -1,10 +1,11 @@
 import sys, pygame
 from pygame.locals import *
 from random import *
+import math
 
 
 pygame.init()
-
+pygame.display.set_caption('Rat Food')
 
 
 TAMANHO_TELA_X = 1200
@@ -14,6 +15,7 @@ TAMANHO_INIMIGO_X = 100
 TAMANHO_INIMIGO_Y = 100
 
 VELOCIDADE_BONUS = - 15
+VELOCIDADE_INIMIGO = -10
 
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
@@ -26,10 +28,15 @@ vator_bonus_pontos = []
 vetor_bonus =  []
 vetor_bonus_posicao_y = []
 vetor_bonus_posicao_x = []
-bonus = []
+bonus_v = []
 bonus_pos = []
 
-inimigos = []
+vetor_inimigos = []
+vetor_inimigos_pontos = []
+vetor_inimigos = []
+vetor_inimigos_posicao_x = []
+vetor_inimigos_posicao_y = []
+vetor_inimigos_ativos = []
 pos_inimigos = []
 sprites = []
 pos_sprite = 0
@@ -62,7 +69,7 @@ pygame.time.set_timer(CLOCKTICK, 1000)
 temporizador = 60
 
 lancador_bonus = True
-
+lancador_inimigos = True
 
 
 class Player():
@@ -117,41 +124,93 @@ class ElementosTela() :
 #     screen.blit(self.text_fases3, (410,200))
     screen.blit(self.text_fases2, (400,200))     
 
+
+
+#Controla os inimigos
 class Inimigos():
-  #Inicializa a classe inimigos e carrega os sprites correspondentes
+  #Inicializa a classe vetor_inimigos e carrega os sprites correspondentes
   def __init__(self):
     self.path = "enemies//"
     
     self.inimigo1 =   pygame.image.load(self.path+'chicken.png').convert_alpha()
-    self.inimigo1 = pygame.transform.scale(self.inimigo1, (TAMANHO_INIMIGO_X, TAMANHO_INIMIGO_Y))
+    self.inimigo1 = pygame.transform.scale(self.inimigo1, (75, 75))
     
     self.inimigo2 =   pygame.image.load(self.path+'cookie.png').convert_alpha()
-    self.inimigo2 = pygame.transform.scale(self.inimigo2, (70, 70))
+    self.inimigo2 = pygame.transform.scale(self.inimigo2, (40, 40))
     
     self.inimigo3 =   pygame.image.load(self.path+'cupcake.png').convert_alpha()
-    self.inimigo3 = pygame.transform.scale(self.inimigo3, (70, 70))
+    self.inimigo3 = pygame.transform.scale(self.inimigo3, (60, 60))
     
     self.inimigo4 =   pygame.image.load(self.path+'donut.png').convert_alpha()
-    self.inimigo4 = pygame.transform.scale(self.inimigo4, (70, 70))
+    self.inimigo4 = pygame.transform.scale(self.inimigo4, (50, 50))
     
     self.inimigo5 =   pygame.image.load(self.path+'pizza.png').convert_alpha()
     self.inimigo5 = pygame.transform.scale(self.inimigo5, (70, 70))
     
+    self.iterador = -1
     
-   #Adiciona inimigos ao vetor   
-    inimigos.append(self.inimigo1)
-    inimigos.append(self.inimigo2)
-    inimigos.append(self.inimigo3)
-    inimigos.append(self.inimigo4)
-    inimigos.append(self.inimigo5)
+   #Adiciona vetor_inimigos ao vetor   
+    vetor_inimigos.append(self.inimigo1)
+    vetor_inimigos.append(self.inimigo2)
+    vetor_inimigos.append(self.inimigo3)
+    vetor_inimigos.append(self.inimigo4)
+    vetor_inimigos.append(self.inimigo5)
+    print("O tamanho do vetor eh "+str(len(vetor_inimigos)))
    
    
-     
+  def deletaInimigo(self):
+    c = 0
+    while c < (len(vetor_inimigos_ativos)):
+      if (vetor_inimigos_posicao_x[c] < -1):
+        del(vetor_inimigos_posicao_x[c])
+        del(vetor_inimigos_posicao_y[c])
+        del(vetor_inimigos_ativos[c])
+        print(str(len(vetor_inimigos_ativos)))
+        print(str(len(vetor_inimigos_posicao_x)))
+      c+=1    
     
+  def sorteiaInimigo(self):
+    print(str(self.iterador))
+    print(str(len(vetor_inimigos)))
+    limite = 50
+    num = randint(0,50)
+    if self.iterador==num:
+      inimigoObj.lancaInimigo()
+      print(str(self.iterador))
+      print(str(num))
+      self.iterador = -1
+    if self.iterador>limite:
+      self.iterador=-1      
 
   def lancaInimigo(self):
-    pos_inicial_y = randint(100,500)
+    print(str(lancador_inimigos))
+    if lancador_inimigos == True:
+      posicao = randint(60,540)
+      inimigoPosicao = randint(0,len(vetor_inimigos)-1)
+      vetor_inimigos_ativos.append(vetor_inimigos[inimigoPosicao])
+      vetor_inimigos_posicao_y.append(posicao)
+      vetor_inimigos_posicao_x.append(1250)
 
+  def moveInimigo(self, k):
+    i = 0
+    if (len(vetor_inimigos_ativos) < k+1): 
+      while i<(len(vetor_inimigos_ativos)):
+        vetor_inimigos_posicao_x[i] += VELOCIDADE_INIMIGO
+        screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
+        i+=1
+        
+  def verificaColisao(self, pos_player):
+    i = 0
+    while i < (len(vetor_inimigos_ativos)):
+      if (vetor_inimigos_posicao_x[i] <= pos_player) and (vetor_inimigos_posicao_y[i] >= 185):
+        print( "COLIDIU")
+        i+=1
+    
+          
+              
+
+
+#Controla os bonus
 class Bonus():
   def __init__(self):
     self.path = "bonus//"
@@ -172,14 +231,14 @@ class Bonus():
     self.pontosBonus4 = 30
     
     #Define a quantidade de frutas no vetor, As frutas que valem mais pontos sao mais raras
-    bonus.append(self.bonus1)
-    bonus.append(self.bonus1)
-    bonus.append(self.bonus1)
-    bonus.append(self.bonus2)
-    bonus.append(self.bonus2)
-    bonus.append(self.bonus3)
-    bonus.append(self.bonus3)
-    bonus.append(self.bonus4)
+    bonus_v.append(self.bonus1)
+    bonus_v.append(self.bonus1)
+    bonus_v.append(self.bonus1)
+    bonus_v.append(self.bonus2)
+    bonus_v.append(self.bonus2)
+    bonus_v.append(self.bonus3)
+    bonus_v.append(self.bonus3)
+    bonus_v.append(self.bonus4)
     
     
     self.iterador = -1
@@ -188,12 +247,12 @@ class Bonus():
   def deletaBonus(self):
     c = 0
     while c < (len(vetor_bonus)):
-      if (vetor_bonus_posicao_x[c] < 200):
+      if (vetor_bonus_posicao_x[c] < -1):
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
-        print(str(len(vetor_bonus)))
-        print(str(len(vetor_bonus_posicao_x)))
+#         print(str(len(vetor_bonus)))
+#         print(str(len(vetor_bonus_posicao_x)))
       c+=1  
   
   def sorteiaBonus(self):
@@ -214,8 +273,8 @@ class Bonus():
     print(str(lancador_bonus))
     if lancador_bonus == True:
       posicao = randint(60,540)
-      bonusPosicao = randint(0,len(bonus)-1)
-      vetor_bonus.append(bonus[bonusPosicao])
+      bonusPosicao = randint(0,len(bonus_v)-1)
+      vetor_bonus.append(bonus_v[bonusPosicao])
       vetor_bonus_posicao_y.append(posicao)
       vetor_bonus_posicao_x.append(1250)
       
@@ -229,7 +288,7 @@ class Bonus():
     
 player = Player()
 elementos = ElementosTela()
-inimigos = Inimigos()
+inimigoObj = Inimigos()
 bonusObj = Bonus()
 while True:
     
@@ -285,6 +344,18 @@ while True:
     bonusObj.deletaBonus()
     bonusObj.sorteiaBonus()
     
+    
+    
+    if (len(vetor_inimigos_ativos) < 5):
+      lancador_inimigos = True
+    else:
+      lancador_inimigos = False  
+   
+   # inimigoObj.verificaColisao(pos_y)
+    inimigoObj.iterador+=1
+    inimigoObj.deletaInimigo()
+    inimigoObj.sorteiaInimigo()
+    
       
               
         
@@ -299,19 +370,22 @@ while True:
     #pegar tamanho varaiavel, ver se ja liberou espaco, depois blitar proxima imagem. colocar velocidade movimento, *criar vetores com nuvem, controlar elas
     screen.blit(sprites[pos_sprite], (pos_x, pos_y)) 
     #elementos.escreverNomeFase()
-    inimigos.lancaInimigo()
     bonusObj.moveBonus(3)
-    screen.blit(relogio, (835,7))
-    #screen.blit(placar,(980,15))
-    timer1 = elementos.font_1.render(str(temporizador), True, (WHITE))
-    screen.blit(timer1, (915, 12))
-    fase = elementos.font_1.render("Fase 1", True, (WHITE)) 
-    screen.blit(fase, (100, 10)) 
+    inimigoObj.moveInimigo(5)
+    screen.blit(relogio, (1035,7))
+    timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
+    screen.blit(timer1, (1110, 10))
     fase = elementos.font_3.render("Fase 1", True, (WHITE)) 
-    screen.blit(fase, (300, 10)) 
+    screen.blit(fase, (50, 10))
+    score = elementos.font_3.render("Placar: ", True, (WHITE)) 
+    screen.blit(score,(850,10))
+    
+    
     pygame.display.flip()      
     pos_sprite+=1
     clock.tick(60)
+    
+    
        
     
 
