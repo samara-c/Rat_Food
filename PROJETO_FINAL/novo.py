@@ -14,8 +14,8 @@ TAMANHO_TELA_Y = 650
 TAMANHO_INIMIGO_X = 100
 TAMANHO_INIMIGO_Y = 100
 
-VELOCIDADE_BONUS = - 15
-VELOCIDADE_INIMIGO = -10
+VELOCIDADE_BONUS = - 8
+VELOCIDADE_INIMIGO = -5
 
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
@@ -48,7 +48,8 @@ BLACK  = (0, 0, 0)
 WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
-BLUE = (0, 0, 255)
+DARK_BLUE = (15, 41, 71)
+BLUE = (49,171,232)
 GREEN = (0,255,0)
 TAMANHO_FONTE_FASES = 200
 
@@ -57,12 +58,16 @@ movimento_positivo = False
 relogio = pygame.image.load('elements//clock.png').convert_alpha()
 relogio = pygame.transform.scale(relogio, (90, 40)) 
 
-placar = pygame.image.load('elements//cloud.png').convert_alpha()
-placar = pygame.transform.scale(placar, (190, 70)) 
 
 background = pygame.image.load('bg11.jpg').convert()
 background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50)) 
+background_inicio = background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
 
+
+fase_1 = False  
+fase_2 = False 
+fase_3 = False
+tela_inicial = True
 
 CLOCKTICK = pygame.USEREVENT+1
 pygame.time.set_timer(CLOCKTICK, 1000) 
@@ -112,6 +117,7 @@ class ElementosTela() :
     self.font_1 = pygame.font.Font(self.path+"Candy Beans.otf", 20)
     self.font_2 = pygame.font.Font(self.path+"No Virus.ttf", 20)
     self.font_3 = pygame.font.Font(self.path+"MilkyNice.ttf", 30)
+    self.font_4 = pygame.font.Font(self.path+"MilkyNice.ttf", 26)
     self.font_fases = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
     
@@ -119,11 +125,23 @@ class ElementosTela() :
     self.font_fases3 = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
     self.font = pygame.font.SysFont('sans',26)
+    
+    self.nuvem = pygame.image.load('elements//cloud_inicio.png').convert_alpha()
+    self.nuvem = pygame.transform.scale(self.nuvem, (960,505)) 
   
-  def escreverNomeFase(self):
-#     screen.blit(self.text_fases3, (410,200))
-    screen.blit(self.text_fases2, (400,200))     
-
+  def carregaElementosTelaInicial(self):
+    screen.blit(self.nuvem, (120,50))
+    #self.texto = self.font_3.render("Sistemas de Informacao - Mackenzie", True, (BLACK))
+    #screen.blit(self.texto,(400,580))
+    elementos.carregaMenu()
+    
+  def carregaMenu(self):
+    self.opcao_iniciar =  self.font_3.render("Iniciar", True, (BLUE))
+    self.opcao_instrucoes = self.font_4.render("Como jogar", True, (BLACK))
+    self.opcao_ajustes = self.font_4.render("Ajustes", True, (BLACK))
+    
+    screen.blit(self.opcao_iniciar,(300,300))
+    
 
 
 #Controla os inimigos
@@ -285,12 +303,40 @@ class Bonus():
         vetor_bonus_posicao_x[i] += VELOCIDADE_BONUS
         screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
         i+=1  
+
+
+
     
-player = Player()
+
+
 elementos = ElementosTela()
+
+while tela_inicial:
+
+        #Handle Input Events
+  for event in pygame.event.get():
+    if event.type == QUIT:
+      pygame.quit()
+      sys.exit()            
+    if event.type == pygame.KEYDOWN:
+        if event.key == K_SPACE:
+          tela_inicial = False
+          fase_1 = True  
+        
+  screen.blit(background_inicio, (0, 0))
+  elementos.carregaElementosTelaInicial()
+  pygame.display.flip()
+
+
+
+
+
+
+player = Player()
 inimigoObj = Inimigos()
 bonusObj = Bonus()
-while True:
+
+while fase_1:
     
     
    
@@ -346,7 +392,7 @@ while True:
     
     
     
-    if (len(vetor_inimigos_ativos) < 5):
+    if (len(vetor_inimigos_ativos) < 4    ):
       lancador_inimigos = True
     else:
       lancador_inimigos = False  
@@ -379,6 +425,8 @@ while True:
     screen.blit(fase, (50, 10))
     score = elementos.font_3.render("Placar: ", True, (WHITE)) 
     screen.blit(score,(850,10))
+    pontos = elementos.font_3.render(str(player.pontos), True, (YELLOW))
+    screen.blit(pontos,(960,10))
     
     
     pygame.display.flip()      
