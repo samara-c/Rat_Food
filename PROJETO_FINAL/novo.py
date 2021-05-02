@@ -68,6 +68,7 @@ fase_1 = False
 fase_2 = False 
 fase_3 = False
 tela_inicial = True
+menu_pos_selecionada = 0
 
 CLOCKTICK = pygame.USEREVENT+1
 pygame.time.set_timer(CLOCKTICK, 1000) 
@@ -76,6 +77,9 @@ temporizador = 60
 lancador_bonus = True
 lancador_inimigos = True
 
+opcao_iniciar_menu = True
+opcao_instrucoes_menu = False
+opcao_ajustes_menu = False  
 
 class Player():
   
@@ -108,6 +112,7 @@ class Player():
     #self.rect.topleft = [pos_x,pos_y]
     
     self.pontos = 0
+   
 
 class ElementosTela() :
   
@@ -128,6 +133,12 @@ class ElementosTela() :
     
     self.nuvem = pygame.image.load('elements//cloud_inicio.png').convert_alpha()
     self.nuvem = pygame.transform.scale(self.nuvem, (960,505)) 
+    
+    self.posicao_item = 320
+    
+    self.text_iniciar = "Iniciar"
+    self.texto_instrucoes = "Como jogar"
+    self.texto_ajustes = "Ajustes"
   
   def carregaElementosTelaInicial(self):
     screen.blit(self.nuvem, (120,50))
@@ -136,16 +147,34 @@ class ElementosTela() :
     elementos.carregaMenu()
     
   def carregaMenu(self, cor = BLACK):
-    self.opcao_iniciar =  self.font_4.render("Iniciar", True, (cor))
-    self.opcao_instrucoes = self.font_4.render("Como jogar", True, (cor))
-    self.opcao_ajustes = self.font_4.render("Ajustes", True, (cor))
+    self.opcao_iniciar =  self.font_4.render(self.text_iniciar, True, (cor))
+    self.opcao_instrucoes = self.font_4.render(self.texto_instrucoes, True, (cor))
+    self.opcao_ajustes = self.font_4.render(self.texto_ajustes, True, (cor))
     
-    posicao_item = 320
-    screen.blit(self.opcao_iniciar,(560,posicao_item))
-    screen.blit(self.opcao_instrucoes,(520,posicao_item+50))
-    screen.blit(self.opcao_ajustes,(550,posicao_item+100))
     
- 
+    screen.blit(self.opcao_iniciar,(560,self.posicao_item))
+    screen.blit(self.opcao_instrucoes,(520,self.posicao_item+50))
+    screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))
+    
+  def navegaMenu (self, pos):
+    if pos == 0:
+      self.opcao_iniciar =  self.font_4.render(self.text_iniciar, True, (BLUE))
+      screen.blit(self.opcao_iniciar,(560,self.posicao_item))
+      opcao_iniciar_menu = True
+      opcao_instrucoes_menu = False
+      opcao_ajustes_menu = False
+    elif pos == 1:
+      self.opcao_instrucoes =  self.font_4.render(self.texto_instrucoes, True, (BLUE))
+      screen.blit(self.opcao_instrucoes,(520,self.posicao_item+50))
+      opcao_iniciar_menu = False
+      opcao_instrucoes_menu = True
+      opcao_ajustes_menu = False
+    elif pos == 2:
+      self.opcao_ajustes =  self.font_4.render(self.texto_ajustes, True, (BLUE))
+      screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))
+      opcao_iniciar_menu = False
+      opcao_instrucoes_menu = False
+      opcao_ajustes_menu = True          
    
     
 
@@ -328,8 +357,18 @@ while tela_inicial:
           tela_inicial = False
           fase_1 = True  
         
+        if event.key == K_DOWN:
+          menu_pos_selecionada+=1
+          if menu_pos_selecionada >2:
+            menu_pos_selecionada = 2
+        if event.key == K_UP:
+          menu_pos_selecionada-=1
+          if menu_pos_selecionada < 0:
+            menu_pos_selecionada = 0  
+        
   screen.blit(background_inicio, (0, 0))
   elementos.carregaElementosTelaInicial()
+  elementos.navegaMenu(menu_pos_selecionada)
   pygame.display.flip()
 
 
