@@ -117,7 +117,7 @@ class ElementosTela() :
     self.font_1 = pygame.font.Font(self.path+"Candy Beans.otf", 20)
     self.font_2 = pygame.font.Font(self.path+"No Virus.ttf", 20)
     self.font_3 = pygame.font.Font(self.path+"MilkyNice.ttf", 30)
-    self.font_4 = pygame.font.Font(self.path+"MilkyNice.ttf", 26)
+    self.font_4 = pygame.font.Font(self.path+"MilkyNice.ttf", 36)
     self.font_fases = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
     
@@ -135,14 +135,19 @@ class ElementosTela() :
     #screen.blit(self.texto,(400,580))
     elementos.carregaMenu()
     
-  def carregaMenu(self):
-    self.opcao_iniciar =  self.font_3.render("Iniciar", True, (BLUE))
-    self.opcao_instrucoes = self.font_4.render("Como jogar", True, (BLACK))
-    self.opcao_ajustes = self.font_4.render("Ajustes", True, (BLACK))
+  def carregaMenu(self, cor = BLACK):
+    self.opcao_iniciar =  self.font_4.render("Iniciar", True, (cor))
+    self.opcao_instrucoes = self.font_4.render("Como jogar", True, (cor))
+    self.opcao_ajustes = self.font_4.render("Ajustes", True, (cor))
     
-    screen.blit(self.opcao_iniciar,(300,300))
+    posicao_item = 320
+    screen.blit(self.opcao_iniciar,(560,posicao_item))
+    screen.blit(self.opcao_instrucoes,(520,posicao_item+50))
+    screen.blit(self.opcao_ajustes,(550,posicao_item+100))
     
-
+ 
+   
+    
 
 #Controla os inimigos
 class Inimigos():
