@@ -2,6 +2,9 @@ import sys, pygame
 from pygame.locals import *
 from random import *
 import math
+from pickle import FALSE
+
+
 
 
 pygame.init()
@@ -20,9 +23,9 @@ VELOCIDADE_INIMIGO = -5
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
 
-TAMANHO_PLAYER_X = 150
-TAMANHO_PLAYER_Y = 150
-VELOCIDADE_PLAYER = 15
+TAMANHO_PLAYER_X = 140
+TAMANHO_PLAYER_Y = 140
+velocidade_player = 5
 
 vator_bonus_pontos = []
 vetor_bonus =  []
@@ -31,6 +34,8 @@ vetor_bonus_posicao_x = []
 bonus_v = []
 bonus_pos = []
 
+
+energia = 1000   
 vetor_inimigos = []
 vetor_inimigos_pontos = []
 vetor_inimigos = []
@@ -44,13 +49,17 @@ pos_x = 35
 pos_y = 100
 clock = pygame.time.Clock()
 
+
+
+
+
 BLACK  = (0, 0, 0)
 WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
-RED = (255, 0, 0)
+YELLOW = (243, 255, 43)
+RED = (255, 74, 73)
 DARK_BLUE = (15, 41, 71)
 BLUE = (49,171,232)
-GREEN = (0,255,0)
+GREEN = (71,255,43)
 TAMANHO_FONTE_FASES = 200
 
 movimento_positivo = False
@@ -79,7 +88,10 @@ lancador_inimigos = True
 
 opcao_iniciar_menu = True
 opcao_instrucoes_menu = False
-opcao_ajustes_menu = False  
+opcao_ajustes_menu = False
+
+
+  
 
 class Player():
   
@@ -112,12 +124,16 @@ class Player():
     #self.rect.topleft = [pos_x,pos_y]
     
     self.pontos = 0
+
+
+
    
 
 class ElementosTela() :
   
   def __init__(self):
     self.path = "fonts//"
+    self.path_elements = "elements//"
     
     self.font_1 = pygame.font.Font(self.path+"Candy Beans.otf", 20)
     self.font_2 = pygame.font.Font(self.path+"No Virus.ttf", 20)
@@ -131,7 +147,7 @@ class ElementosTela() :
     
     self.font = pygame.font.SysFont('sans',26)
     
-    self.nuvem = pygame.image.load('elements//cloud_inicio.png').convert_alpha()
+    self.nuvem = pygame.image.load(self.path_elements+'cloud_inicio.png').convert_alpha()
     self.nuvem = pygame.transform.scale(self.nuvem, (960,505)) 
     
     self.posicao_item = 320
@@ -139,44 +155,61 @@ class ElementosTela() :
     self.text_iniciar = "Iniciar"
     self.texto_instrucoes = "Como jogar"
     self.texto_ajustes = "Ajustes"
+    
+    self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
+    self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
+    self.tamanho_barra = 100 
   
   def carregaElementosTelaInicial(self):
     screen.blit(self.nuvem, (120,50))
     #self.texto = self.font_3.render("Sistemas de Informacao - Mackenzie", True, (BLACK))
     #screen.blit(self.texto,(400,580))
     elementos.carregaMenu()
+ 
+ 
+  def calculaBarraEnergia (self, valor):
+    
+    valor = math.ceil(valor/10)
+    self.tamanho_barra = valor 
+    print("O valor eh"+ str(valor))
+    
+    if valor >= 66 and valor <= 100:
+      cor = GREEN
+    elif valor >= 33 and valor <= 65:
+      cor = YELLOW
+    elif valor >= 0 and valor <= 32:
+      cor = RED    
+    return cor   
+ 
+  def carregaBarraEnergia(self, cor = GREEN):
+    pygame.draw.rect(screen,WHITE,(692,18,112,18), 0)
+    pygame.draw.rect(screen,cor,(702,21,self.tamanho_barra,13), 0)
+    screen.blit(self.energia_icone, (680,10))
+    
     
   def carregaMenu(self, cor = BLACK):
     self.opcao_iniciar =  self.font_4.render(self.text_iniciar, True, (cor))
     self.opcao_instrucoes = self.font_4.render(self.texto_instrucoes, True, (cor))
     self.opcao_ajustes = self.font_4.render(self.texto_ajustes, True, (cor))
     
-    
     screen.blit(self.opcao_iniciar,(560,self.posicao_item))
     screen.blit(self.opcao_instrucoes,(520,self.posicao_item+50))
     screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))
+  
     
   def navegaMenu (self, pos):
     if pos == 0:
       self.opcao_iniciar =  self.font_4.render(self.text_iniciar, True, (BLUE))
       screen.blit(self.opcao_iniciar,(560,self.posicao_item))
-      opcao_iniciar_menu = True
-      opcao_instrucoes_menu = False
-      opcao_ajustes_menu = False
     elif pos == 1:
       self.opcao_instrucoes =  self.font_4.render(self.texto_instrucoes, True, (BLUE))
       screen.blit(self.opcao_instrucoes,(520,self.posicao_item+50))
-      opcao_iniciar_menu = False
-      opcao_instrucoes_menu = True
-      opcao_ajustes_menu = False
     elif pos == 2:
       self.opcao_ajustes =  self.font_4.render(self.texto_ajustes, True, (BLUE))
-      screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))
-      opcao_iniciar_menu = False
-      opcao_instrucoes_menu = False
-      opcao_ajustes_menu = True          
+      screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))  
    
-    
+  def exibeInstrucoes (self):
+    print("ola")
 
 #Controla os inimigos
 class Inimigos():
@@ -241,7 +274,7 @@ class Inimigos():
       inimigoPosicao = randint(0,len(vetor_inimigos)-1)
       vetor_inimigos_ativos.append(vetor_inimigos[inimigoPosicao])
       vetor_inimigos_posicao_y.append(posicao)
-      vetor_inimigos_posicao_x.append(1250)
+      vetor_inimigos_posicao_x.append(1300)
 
   def moveInimigo(self, k):
     i = 0
@@ -294,7 +327,7 @@ class Bonus():
     
     
     self.iterador = -1
-   
+    self.energia = 1000
   
   def deletaBonus(self):
     c = 0
@@ -303,6 +336,8 @@ class Bonus():
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
+        self.energia -= 20
+        
 #         print(str(len(vetor_bonus)))
 #         print(str(len(vetor_bonus_posicao_x)))
       c+=1  
@@ -328,7 +363,7 @@ class Bonus():
       bonusPosicao = randint(0,len(bonus_v)-1)
       vetor_bonus.append(bonus_v[bonusPosicao])
       vetor_bonus_posicao_y.append(posicao)
-      vetor_bonus_posicao_x.append(1250)
+      vetor_bonus_posicao_x.append(1300)
       
   def moveBonus(self, k):
     i = 0
@@ -354,8 +389,11 @@ while tela_inicial:
       sys.exit()            
     if event.type == pygame.KEYDOWN:
         if event.key == K_SPACE:
-          tela_inicial = False
-          fase_1 = True  
+          if menu_pos_selecionada == 0:
+            tela_inicial = False 
+            fase_1 = True 
+          if menu_pos_selecionada == 1:
+            tela_inicial = False   
         
         if event.key == K_DOWN:
           menu_pos_selecionada+=1
@@ -406,17 +444,17 @@ while fase_1:
       pressed = pygame.key.get_pressed()
       
     if movimento_positivo == True:
-        pos_y -= VELOCIDADE_PLAYER  
+        pos_y -= velocidade_player  
     if movimento_positivo == False:
-        pos_y += VELOCIDADE_PLAYER+10 
+        pos_y += 50
    
     if temporizador == 0:
       break
       
     if pos_y <60:
       pos_y =60
-    if pos_y > 490:
-      pos_y = 490   
+    if pos_y > 500:
+      pos_y = 500   
      
 #       elif event.type == pygame.KEYDOWN:
 #         if event.key == pygame.K_w or event.key == pygame.K_UP :
@@ -435,6 +473,9 @@ while fase_1:
     bonusObj.sorteiaBonus()
     
     
+    energia = bonusObj.energia
+    if energia <0:
+      energia = 0
     
     if (len(vetor_inimigos_ativos) < 4    ):
       lancador_inimigos = True
@@ -471,6 +512,7 @@ while fase_1:
     screen.blit(score,(850,10))
     pontos = elementos.font_3.render(str(player.pontos), True, (YELLOW))
     screen.blit(pontos,(960,10))
+    elementos.carregaBarraEnergia(elementos.calculaBarraEnergia(energia))
     
     
     pygame.display.flip()      
