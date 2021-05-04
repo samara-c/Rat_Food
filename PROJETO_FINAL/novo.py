@@ -25,7 +25,7 @@ screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
 TAMANHO_PLAYER_X = 140
 TAMANHO_PLAYER_Y = 140
-velocidade_player = 5
+
 
 vator_bonus_pontos = []
 vetor_bonus =  []
@@ -90,7 +90,7 @@ opcao_iniciar_menu = True
 opcao_instrucoes_menu = False
 opcao_ajustes_menu = False
 
-
+POSICOES = [120,270,390,540]
   
 
 class Player():
@@ -123,6 +123,8 @@ class Player():
     self.rect = self.image.get_rect()
     #self.rect.topleft = [pos_x,pos_y]
     
+    self.velocidade_player = 5
+    self.peso_player = 5
     self.pontos = 0
 
 
@@ -139,6 +141,12 @@ class ElementosTela() :
     self.font_2 = pygame.font.Font(self.path+"No Virus.ttf", 20)
     self.font_3 = pygame.font.Font(self.path+"MilkyNice.ttf", 30)
     self.font_4 = pygame.font.Font(self.path+"MilkyNice.ttf", 36)
+    self.font_titulo = pygame.font.Font(self.path+"PaperPlane-jE1R7.otf", 110)
+    self.rato = pygame.image.load("player//"+'RatPilot1.png').convert_alpha()
+    self.rato = pygame.transform.scale(self.rato, (200, 200))
+    
+#     self.font_titulo = pygame.font.Font(self.path+"RaptorAttack-B0Gd.ttf", 40)
+    
     self.font_fases = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
     
@@ -150,7 +158,7 @@ class ElementosTela() :
     self.nuvem = pygame.image.load(self.path_elements+'cloud_inicio.png').convert_alpha()
     self.nuvem = pygame.transform.scale(self.nuvem, (960,505)) 
     
-    self.posicao_item = 320
+    self.posicao_item = 340
     
     self.text_iniciar = "Iniciar"
     self.texto_instrucoes = "Como jogar"
@@ -161,7 +169,8 @@ class ElementosTela() :
     self.tamanho_barra = 100 
   
   def carregaElementosTelaInicial(self):
-    screen.blit(self.nuvem, (120,50))
+    screen.blit(self.nuvem, (120,55))
+    screen.blit(self.rato, (520,30))
     #self.texto = self.font_3.render("Sistemas de Informacao - Mackenzie", True, (BLACK))
     #screen.blit(self.texto,(400,580))
     elementos.carregaMenu()
@@ -175,17 +184,26 @@ class ElementosTela() :
     
     if valor >= 66 and valor <= 100:
       cor = GREEN
+      player.velocidade_player = 15
+      player.peso_player = 15
     elif valor >= 33 and valor <= 65:
       cor = YELLOW
+      player.velocidade_player = 10
+      player.peso_player = 10
     elif valor >= 0 and valor <= 32:
-      cor = RED    
+      cor = RED
+      player.velocidade_player = 5
+      player.peso_player = 5    
     return cor   
  
   def carregaBarraEnergia(self, cor = GREEN):
     pygame.draw.rect(screen,WHITE,(692,18,112,18), 0)
     pygame.draw.rect(screen,cor,(702,21,self.tamanho_barra,13), 0)
     screen.blit(self.energia_icone, (680,10))
-    
+ 
+  def carregaTitulo(self):
+    texto =  self.font_titulo.render("Rat Food", True, (BLACK)) 
+    screen.blit(texto,(410,220)) 
     
   def carregaMenu(self, cor = BLACK):
     self.opcao_iniciar =  self.font_4.render(self.text_iniciar, True, (cor))
@@ -270,7 +288,7 @@ class Inimigos():
   def lancaInimigo(self):
     print(str(lancador_inimigos))
     if lancador_inimigos == True:
-      posicao = randint(60,540)
+      posicao = POSICOES[randint(0,3)]
       inimigoPosicao = randint(0,len(vetor_inimigos)-1)
       vetor_inimigos_ativos.append(vetor_inimigos[inimigoPosicao])
       vetor_inimigos_posicao_y.append(posicao)
@@ -359,7 +377,7 @@ class Bonus():
   def lancaBonus(self):
     print(str(lancador_bonus))
     if lancador_bonus == True:
-      posicao = randint(60,540)
+      posicao = POSICOES[randint(0,3)]
       bonusPosicao = randint(0,len(bonus_v)-1)
       vetor_bonus.append(bonus_v[bonusPosicao])
       vetor_bonus_posicao_y.append(posicao)
@@ -407,6 +425,7 @@ while tela_inicial:
   screen.blit(background_inicio, (0, 0))
   elementos.carregaElementosTelaInicial()
   elementos.navegaMenu(menu_pos_selecionada)
+  elementos.carregaTitulo()
   pygame.display.flip()
 
 
@@ -444,9 +463,9 @@ while fase_1:
       pressed = pygame.key.get_pressed()
       
     if movimento_positivo == True:
-        pos_y -= velocidade_player  
+        pos_y -= player.velocidade_player  
     if movimento_positivo == False:
-        pos_y += 50
+        pos_y += player.peso_player
    
     if temporizador == 0:
       break
