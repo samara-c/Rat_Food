@@ -32,6 +32,7 @@ vetor_bonus =  []
 vetor_bonus_posicao_y = []
 vetor_bonus_posicao_x = []
 bonus_v = []
+bonus_pontos = []
 bonus_pos = []
 
 
@@ -60,7 +61,7 @@ RED = (255, 74, 73)
 DARK_BLUE = (15, 41, 71)
 BLUE = (49,171,232)
 GREEN = (71,255,43)
-TAMANHO_FONTE_FASES = 200
+TAMANHO_FONTE_FASES = 200  
 
 movimento_positivo = False
 
@@ -77,6 +78,7 @@ fase_1 = False
 fase_2 = False 
 fase_3 = False
 tela_inicial = True
+tela_ajustes = False
 menu_pos_selecionada = 0
 
 CLOCKTICK = pygame.USEREVENT+1
@@ -167,13 +169,18 @@ class ElementosTela() :
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
     self.tamanho_barra = 100 
+ 
+    #ELEMENTOS SONOROS
+    
+    self.som_ligado = True
+ 
   
   def carregaElementosTelaInicial(self):
     screen.blit(self.nuvem, (120,55))
     screen.blit(self.rato, (520,30))
-    #self.texto = self.font_3.render("Sistemas de Informacao - Mackenzie", True, (BLACK))
-    #screen.blit(self.texto,(400,580))
     elementos.carregaMenu()
+    
+    
  
  
   def calculaBarraEnergia (self, valor):
@@ -319,22 +326,25 @@ class Bonus():
     self.path = "bonus//"
     self.bonus1 = pygame.image.load(self.path+'banana.png').convert_alpha()
     self.bonus1 = pygame.transform.scale(self.bonus1, (50, 50 ))
-    self.pontosBonus1 = 10
-    
+        
     self.bonus2 = pygame.image.load(self.path+'apple.png').convert_alpha()
     self.bonus2 = pygame.transform.scale(self.bonus2, (40, 40 ))
-    self.pontosBonus2 = 15
     
     self.bonus3 = pygame.image.load(self.path+'grape.png').convert_alpha()
     self.bonus3 = pygame.transform.scale(self.bonus3, (50, 50 ))
-    self.pontosBonus3 = 15
     
     self.bonus4 = pygame.image.load(self.path+'strawberry.png').convert_alpha()
     self.bonus4 = pygame.transform.scale(self.bonus4, (30, 30 ))
-    self.pontosBonus4 = 30
+    
+    self.bonus5 = pygame.image.load(self.path+'watermelon.png').convert_alpha()
+    self.bonus5 = pygame.transform.scale(self.bonus5, (70, 70 ))
+    
+    self.bonus6 = pygame.image.load(self.path+'peach.png').convert_alpha()
+    self.bonus6 = pygame.transform.scale(self.bonus6, (40, 40 ))
+    
+    
     
     #Define a quantidade de frutas no vetor, As frutas que valem mais pontos sao mais raras
-    bonus_v.append(self.bonus1)
     bonus_v.append(self.bonus1)
     bonus_v.append(self.bonus1)
     bonus_v.append(self.bonus2)
@@ -342,8 +352,11 @@ class Bonus():
     bonus_v.append(self.bonus3)
     bonus_v.append(self.bonus3)
     bonus_v.append(self.bonus4)
-    
-    
+    bonus_v.append(self.bonus4)
+    bonus_v.append(self.bonus5)
+    bonus_v.append(self.bonus6)
+
+        
     self.iterador = -1
     self.energia = 1000
   
@@ -354,10 +367,6 @@ class Bonus():
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
-        self.energia -= 20
-        
-#         print(str(len(vetor_bonus)))
-#         print(str(len(vetor_bonus_posicao_x)))
       c+=1  
   
   def sorteiaBonus(self):
@@ -390,10 +399,26 @@ class Bonus():
         vetor_bonus_posicao_x[i] += VELOCIDADE_BONUS
         screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
         i+=1  
-
-
-
+        
+        
+  def checaColisaoBonus (self, image_rect):
+    i  = 0
+    vetor_colisao = []
+    while i < len(vetor_bonus):
+      var = vetor_bonus[i].get_rect(topleft=(vetor_bonus_posicao_x[i],vetor_bonus_posicao_y[i]))
+      vetor_colisao.append(var)
+      i+=1 
+    s = 0
+    while s<(len(vetor_colisao)):
+      if image_rect.colliderect(vetor_colisao[s]):
+        print("COLIDIU")
+        del(vetor_bonus_posicao_x[s])
+        del(vetor_bonus_posicao_y[s])
+        del(vetor_bonus[s])
+        player.pontos+=5   
+      s+=1  
     
+          
 
 
 elementos = ElementosTela()
@@ -475,12 +500,6 @@ while fase_1:
     if pos_y > 500:
       pos_y = 500   
      
-#       elif event.type == pygame.KEYDOWN:
-#         if event.key == pygame.K_w or event.key == pygame.K_UP :
-#             pos_y -= 10
-#             
-#         elif event.key == pygame.K_s or event.key == pygame.K_DOWN:
-#             pos_y +=10
    
     if (len(vetor_bonus) < 3):
       lancador_bonus = True
@@ -517,9 +536,15 @@ while fase_1:
     screen.blit(background,[0,50])
     pygame.draw.rect(screen, BLACK,(0,0,1200,50))
     
+    
+    
+    
     #pegar tamanho varaiavel, ver se ja liberou espaco, depois blitar proxima imagem. colocar velocidade movimento, *criar vetores com nuvem, controlar elas
-    screen.blit(sprites[pos_sprite], (pos_x, pos_y)) 
-    #elementos.escreverNomeFase()
+    image_rect = sprites[pos_sprite].get_rect(topleft=(pos_x,pos_y))
+    
+   
+    screen.blit(sprites[pos_sprite], image_rect)  
+    bonusObj.checaColisaoBonus(image_rect)
     bonusObj.moveBonus(3)
     inimigoObj.moveInimigo(5)
     screen.blit(relogio, (1035,7))
