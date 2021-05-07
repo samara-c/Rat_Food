@@ -17,8 +17,8 @@ TAMANHO_TELA_Y = 650
 TAMANHO_INIMIGO_X = 100
 TAMANHO_INIMIGO_Y = 100
 
-VELOCIDADE_BONUS = - 8
-VELOCIDADE_INIMIGO = -5
+VELOCIDADE_BONUS = -4
+VELOCIDADE_INIMIGO = -3
 
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
@@ -36,7 +36,7 @@ bonus_pontos = []
 bonus_pos = []
 
 
-energia = 1000   
+   
 vetor_inimigos = []
 vetor_inimigos_pontos = []
 vetor_inimigos = []
@@ -49,6 +49,7 @@ pos_sprite = 0
 pos_x = 35
 pos_y = 100
 clock = pygame.time.Clock()
+vetor_bg = []
 
 
 
@@ -70,8 +71,12 @@ relogio = pygame.transform.scale(relogio, (90, 40))
 
 
 background = pygame.image.load('bg11.jpg').convert()
-background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50)) 
+background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50))
+background_2 = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50)) 
 background_inicio = background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
+vetor_bg.append(background)
+vetor_bg.append(background_2)
+
 
 
 fase_1 = False  
@@ -125,10 +130,10 @@ class Player():
     self.rect = self.image.get_rect()
     #self.rect.topleft = [pos_x,pos_y]
     
-    self.velocidade_player = 5
-    self.peso_player = 5
+    self.velocidade_player = 8
+    self.peso_player = 8
     self.pontos = 0
-
+    self.energia=1000
 
 
    
@@ -173,6 +178,8 @@ class ElementosTela() :
     #ELEMENTOS SONOROS
     
     self.som_ligado = True
+    self.posicao_bg_1 = 0
+    self.posicao_bg_2 = 1200
  
   
   def carregaElementosTelaInicial(self):
@@ -180,6 +187,24 @@ class ElementosTela() :
     screen.blit(self.rato, (520,30))
     elementos.carregaMenu()
     
+  def moveBG(self, velocidade = 1, inicio = False):
+    posicao_default = 50
+    if inicio:
+      posicao_default = 0
+    screen.blit(vetor_bg[0],(self.posicao_bg_1,posicao_default))
+    print(str(self.posicao_bg_1) +  "POSICAO 1")
+    print(str(self.posicao_bg_2) + "POSICAO 2") 
+    screen.blit(vetor_bg[1],(self.posicao_bg_2,posicao_default))
+    
+    if self.posicao_bg_1 <=-1200:
+      self.posicao_bg_1 = 1200
+    else:
+      self.posicao_bg_1-=velocidade       
+      
+    if self.posicao_bg_2 <= -1200:
+      self.posicao_bg_2 = 1200
+    else:
+      self.posicao_bg_2-=velocidade    
     
  
  
@@ -191,16 +216,16 @@ class ElementosTela() :
     
     if valor >= 66 and valor <= 100:
       cor = GREEN
-      player.velocidade_player = 15
-      player.peso_player = 15
-    elif valor >= 33 and valor <= 65:
-      cor = YELLOW
       player.velocidade_player = 10
       player.peso_player = 10
+    elif valor >= 33 and valor <= 65:
+      cor = YELLOW
+      player.velocidade_player = 4
+      player.peso_player = 4
     elif valor >= 0 and valor <= 32:
       cor = RED
-      player.velocidade_player = 5
-      player.peso_player = 5    
+      player.velocidade_player = 2
+      player.peso_player = 2    
     return cor   
  
   def carregaBarraEnergia(self, cor = GREEN):
@@ -309,6 +334,23 @@ class Inimigos():
         screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
         i+=1
         
+  def checaColisaoinimigos (self, image_rect):
+    i  = 0
+    vetor_colisao = []
+    while i < len(vetor_inimigos_ativos):
+      var = vetor_inimigos_ativos[i].get_rect(topleft=(vetor_inimigos_posicao_x[i],vetor_inimigos_posicao_y[i]))
+      vetor_colisao.append(var)
+      i+=1 
+    s = 0
+    while s<(len(vetor_colisao)):
+      if image_rect.colliderect(vetor_colisao[s]):
+        print("COLIDIU")
+        del(vetor_inimigos_posicao_x[s])
+        del(vetor_inimigos_posicao_y[s])
+        del(vetor_inimigos_ativos[s])
+        player.energia-=10   
+      s+=1       
+        
   def verificaColisao(self, pos_player):
     i = 0
     while i < (len(vetor_inimigos_ativos)):
@@ -409,9 +451,8 @@ class Bonus():
       vetor_colisao.append(var)
       i+=1 
     s = 0
-    while s<(len(vetor_colisao)):
+    while s<(i):
       if image_rect.colliderect(vetor_colisao[s]):
-        print("COLIDIU")
         del(vetor_bonus_posicao_x[s])
         del(vetor_bonus_posicao_y[s])
         del(vetor_bonus[s])
@@ -431,7 +472,7 @@ while tela_inicial:
       pygame.quit()
       sys.exit()            
     if event.type == pygame.KEYDOWN:
-        if event.key == K_SPACE:
+        if event.key == K_SPACE:  
           if menu_pos_selecionada == 0:
             tela_inicial = False 
             fase_1 = True 
@@ -447,7 +488,7 @@ while tela_inicial:
           if menu_pos_selecionada < 0:
             menu_pos_selecionada = 0  
         
-  screen.blit(background_inicio, (0, 0))
+  elementos.moveBG(1, True)
   elementos.carregaElementosTelaInicial()
   elementos.navegaMenu(menu_pos_selecionada)
   elementos.carregaTitulo()
@@ -477,20 +518,31 @@ while fase_1:
       if event.type == CLOCKTICK:
             temporizador = temporizador -1
                   
-      if event.type == pygame.KEYDOWN:
-        if event.key == K_SPACE:
-          movimento_positivo = True
+#       if event.type == pygame.KEYDOWN:
+#         if event.key == K_UP:
+#           pos_y -= player.velocidade_player
+# #           movimento_positivo = True
+#         if event.key == K_DOWN:
+#           pos_y += player.peso_player
+#           movimento_positivo = False    
+#       if event.type == pygame.KEYUP:
+#         if event.key == K_SPACE:
+#           movimento_positivo = False    
           
-      if event.type == pygame.KEYUP:
-        if event.key == K_SPACE:
-          movimento_positivo = False    
-          
-      pressed = pygame.key.get_pressed()
+    pressed = pygame.key.get_pressed()
       
-    if movimento_positivo == True:
-        pos_y -= player.velocidade_player  
-    if movimento_positivo == False:
-        pos_y += player.peso_player
+    pos_y -= (pressed[pygame.K_UP] - pressed[pygame.K_DOWN]) * player.velocidade_player
+    pos_y += (pressed[pygame.K_DOWN] - pressed[pygame.K_UP]) * player.peso_player
+      
+#       if pressed[K_UP]:
+#         pos_y -= player.velocidade_player
+#       if pressed[K_DOWN]:
+#         pos_y += player.peso_player  
+      
+#     if movimento_positivo == True:
+#         pos_y -= player.velocidade_player  
+#     if movimento_positivo == False:
+#         pos_y += player.peso_player
    
     if temporizador == 0:
       break
@@ -511,7 +563,7 @@ while fase_1:
     bonusObj.sorteiaBonus()
     
     
-    energia = bonusObj.energia
+    energia = player.energia
     if energia <0:
       energia = 0
     
@@ -532,8 +584,8 @@ while fase_1:
           
           pos_sprite = 0
         
-    
-    screen.blit(background,[0,50])
+    elementos.moveBG()
+#     screen.blit(background,[0,50])
     pygame.draw.rect(screen, BLACK,(0,0,1200,50))
     
     
@@ -546,6 +598,7 @@ while fase_1:
     screen.blit(sprites[pos_sprite], image_rect)  
     bonusObj.checaColisaoBonus(image_rect)
     bonusObj.moveBonus(3)
+    inimigoObj.checaColisaoinimigos(image_rect)
     inimigoObj.moveInimigo(5)
     screen.blit(relogio, (1035,7))
     timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
