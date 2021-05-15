@@ -3,6 +3,10 @@ from pygame.locals import *
 from random import *
 import math
 from pickle import FALSE
+from pygame import mixer
+from playsound import playsound
+
+
 
 
 
@@ -50,7 +54,7 @@ pos_x = 35
 pos_y = 100
 clock = pygame.time.Clock()
 vetor_bg = []
-
+iniciar_musica = True
 
 
 
@@ -85,6 +89,7 @@ fase_3 = False
 tela_inicial = True
 tela_ajustes = False
 menu_pos_selecionada = 0
+tela_fase_1 = False
 
 CLOCKTICK = pygame.USEREVENT+1
 pygame.time.set_timer(CLOCKTICK, 1000) 
@@ -171,17 +176,54 @@ class ElementosTela() :
     self.texto_instrucoes = "Como jogar"
     self.texto_ajustes = "Ajustes"
     
+    # AJUSTES
+    
+    self.som = "Som :"
+    self.idioma = "Idioma: "
+    
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
     self.tamanho_barra = 100 
  
     #ELEMENTOS SONOROS
-    
     self.som_ligado = True
+    
+    
     self.posicao_bg_1 = 0
     self.posicao_bg_2 = 1200
+    
  
+ 
+  def carregaAjustes(self):
+    self.som =  self.font_4.render(self.som, True, (BLACK))
+    self.idioma = self.font_4.render(self.idioma, True, (BLACK))
+    
+    
+    screen.blit(self.som,(560,self.posicao_item))
+    screen.blit(self.idioma,(520,self.posicao_item+50))
   
+  def tocarMusica(self):
+      mixer.init()
+      mixer.music.load('principal.mp3')
+      mixer.music.play()
+      
+   
+  def pararMusica(self):
+      mixer.music.stop() 
+  
+  
+  def reiniciar_vetores_e_pontos(self):
+    lancador_bonus = True 
+    lancador_inimigos = True
+    c = 0
+    while c < (len(vetor_inimigos_ativos)):
+        vetor_inimigos_posicao_x[c] = 1300
+        c+=1    
+    c = 0
+    while c < (len(vetor_bonus)):
+        vetor_bonus_posicao_x[c] = 1300
+        c+=1  
+        
   def carregaElementosTelaInicial(self):
     screen.blit(self.nuvem, (120,55))
     screen.blit(self.rato, (520,30))
@@ -246,6 +288,10 @@ class ElementosTela() :
     screen.blit(self.opcao_instrucoes,(520,self.posicao_item+50))
     screen.blit(self.opcao_ajustes,(550,self.posicao_item+100))
   
+  def carregaTelaFase (self, texto, pos_y):
+    texto_fase = self.font_3.render(texto, True, (WHITE))
+    screen.blit(texto_fase,(550,pos_y))
+    
     
   def navegaMenu (self, pos):
     if pos == 0:
@@ -296,7 +342,7 @@ class Inimigos():
   def deletaInimigo(self):
     c = 0
     while c < (len(vetor_inimigos_ativos)):
-      if (vetor_inimigos_posicao_x[c] < -1):
+      if (vetor_inimigos_posicao_x[c] < -70):
         del(vetor_inimigos_posicao_x[c])
         del(vetor_inimigos_posicao_y[c])
         del(vetor_inimigos_ativos[c])
@@ -405,7 +451,7 @@ class Bonus():
   def deletaBonus(self):
     c = 0
     while c < (len(vetor_bonus)):
-      if (vetor_bonus_posicao_x[c] < -1):
+      if (vetor_bonus_posicao_x[c] < -70):
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
@@ -461,49 +507,34 @@ class Bonus():
     
           
 
-
-elementos = ElementosTela()
-
-while tela_inicial:
-
-        #Handle Input Events
-  for event in pygame.event.get():
-    if event.type == QUIT:
-      pygame.quit()
-      sys.exit()            
-    if event.type == pygame.KEYDOWN:
-        if event.key == K_SPACE:  
-          if menu_pos_selecionada == 0:
-            tela_inicial = False 
-            fase_1 = True 
-          if menu_pos_selecionada == 1:
-            tela_inicial = False   
-        
-        if event.key == K_DOWN:
-          menu_pos_selecionada+=1
-          if menu_pos_selecionada >2:
-            menu_pos_selecionada = 2
-        if event.key == K_UP:
-          menu_pos_selecionada-=1
-          if menu_pos_selecionada < 0:
-            menu_pos_selecionada = 0  
-        
-  elementos.moveBG(1, True)
-  elementos.carregaElementosTelaInicial()
-  elementos.navegaMenu(menu_pos_selecionada)
-  elementos.carregaTitulo()
-  pygame.display.flip()
-
-
-
-
-
-
 player = Player()
 inimigoObj = Inimigos()
 bonusObj = Bonus()
 
-while fase_1:
+player_2 = Player()
+inimigoObj_2 = Inimigos()
+bonusObj_2 = Bonus()
+
+elementos = ElementosTela()
+elementos.tocarMusica()
+while tela_inicial:
+  posicao = 400
+  
+  while opcao_instrucoes_menu:
+    elementos.moveBG(1, True)
+    elementos.carregaElementosTelaInicial()
+    elementos.carregaTitulo()
+    pygame.display.flip()
+    
+    
+  
+  while opcao_ajustes_menu:
+    elementos.moveBG(1, True)
+    elementos.carregaElementosTelaInicial()
+    elementos.carregaTitulo()
+    pygame.display.flip()
+  
+  while fase_1:
     
     
    
@@ -517,34 +548,17 @@ while fase_1:
             sys.exit()
       if event.type == CLOCKTICK:
             temporizador = temporizador -1
-                  
-#       if event.type == pygame.KEYDOWN:
-#         if event.key == K_UP:
-#           pos_y -= player.velocidade_player
-# #           movimento_positivo = True
-#         if event.key == K_DOWN:
-#           pos_y += player.peso_player
-#           movimento_positivo = False    
-#       if event.type == pygame.KEYUP:
-#         if event.key == K_SPACE:
-#           movimento_positivo = False    
-          
+                            
     pressed = pygame.key.get_pressed()
       
     pos_y -= (pressed[pygame.K_UP] - pressed[pygame.K_DOWN]) * player.velocidade_player
     pos_y += (pressed[pygame.K_DOWN] - pressed[pygame.K_UP]) * player.peso_player
-      
-#       if pressed[K_UP]:
-#         pos_y -= player.velocidade_player
-#       if pressed[K_DOWN]:
-#         pos_y += player.peso_player  
-      
-#     if movimento_positivo == True:
-#         pos_y -= player.velocidade_player  
-#     if movimento_positivo == False:
-#         pos_y += player.peso_player
    
     if temporizador == 0:
+      fase_1 = False
+      fase_2 = True
+      temporizador = 60
+      elementos.reiniciar_vetores_e_pontos()
       break
       
     if pos_y <60:
@@ -585,13 +599,10 @@ while fase_1:
           pos_sprite = 0
         
     elementos.moveBG()
-#     screen.blit(background,[0,50])
     pygame.draw.rect(screen, BLACK,(0,0,1200,50))
     
     
     
-    
-    #pegar tamanho varaiavel, ver se ja liberou espaco, depois blitar proxima imagem. colocar velocidade movimento, *criar vetores com nuvem, controlar elas
     image_rect = sprites[pos_sprite].get_rect(topleft=(pos_x,pos_y))
     
    
@@ -616,9 +627,148 @@ while fase_1:
     pos_sprite+=1
     clock.tick(60)
     
+
+  for event in pygame.event.get():
+    if event.type == QUIT:
+      pygame.quit()
+      sys.exit()            
+    if event.type == pygame.KEYDOWN:
+        if event.key == K_SPACE:  
+          if menu_pos_selecionada == 0:
+            fase_1 = True 
+          if menu_pos_selecionada == 1:
+            opcao_instrucoes_menu = True   
+        
+        if event.key == K_DOWN:
+          menu_pos_selecionada+=1
+          if menu_pos_selecionada >2:
+            menu_pos_selecionada = 2
+        if event.key == K_UP:
+          menu_pos_selecionada-=1
+          if menu_pos_selecionada < 0:
+            menu_pos_selecionada = 0
+  
+  
+  # INICIO FASE 2          
+  while fase_2:
     
+     
+    for event in pygame.event.get():
+        
+        
        
+      if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+      if event.type == CLOCKTICK:
+            temporizador = temporizador -1
+                            
+    pressed = pygame.key.get_pressed()
+      
+    pos_y -= (pressed[pygame.K_UP] - pressed[pygame.K_DOWN]) * player.velocidade_player
+    pos_y += (pressed[pygame.K_DOWN] - pressed[pygame.K_UP]) * player.peso_player
+   
+    if temporizador == 0:
+      fase_2 = False
+      temporizador = 60
+      elementos.reiniciar_vetores_e_pontos()
+      break
+      
+    if pos_y <60:
+      pos_y =60
+    if pos_y > 500:
+      pos_y = 500   
+     
+   
+    if (len(vetor_bonus) < 3):
+      lancador_bonus = True
+    else:
+      lancador_bonus = False  
+   
+    bonusObj_2.iterador+=1
+    bonusObj_2.deletaBonus()
+    bonusObj_2.sorteiaBonus()
     
+    
+    energia = player_2.energia
+    if energia <0:
+      energia = 0
+    
+    if (len(vetor_inimigos_ativos) < 4):
+      lancador_inimigos = True
+    else:
+      lancador_inimigos = False  
+   
+   # inimigoObj.verificaColisao(pos_y)
+    inimigoObj_2.iterador+=1
+    inimigoObj_2.deletaInimigo()
+    inimigoObj_2.sorteiaInimigo()
+    
+      
+              
+        
+    if (pos_sprite > len(sprites) -1):
+          
+          pos_sprite = 0
+        
+    elementos.moveBG()
+    pygame.draw.rect(screen, BLACK,(0,0,1200,50))
+    
+    
+    
+    image_rect = sprites[pos_sprite].get_rect(topleft=(pos_x,pos_y))
+    
+   
+    screen.blit(sprites[pos_sprite], image_rect)  
+    bonusObj_2.checaColisaoBonus(image_rect)
+    bonusObj_2.moveBonus(3)
+    inimigoObj_2.checaColisaoinimigos(image_rect)
+    inimigoObj_2.moveInimigo(5)
+    screen.blit(relogio, (1035,7))
+    timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
+    screen.blit(timer1, (1110, 10))
+    fase = elementos.font_3.render("Fase 2", True, (WHITE)) 
+    screen.blit(fase, (50, 10))
+    score = elementos.font_3.render("Placar: ", True, (WHITE)) 
+    screen.blit(score,(850,10))
+    pontos = elementos.font_3.render(str(player.pontos), True, (YELLOW))
+    screen.blit(pontos,(960,10))
+    elementos.carregaBarraEnergia(elementos.calculaBarraEnergia(energia))
+    
+    
+    pygame.display.flip()      
+    pos_sprite+=1
+    clock.tick(60)
+    
+
+  for event in pygame.event.get():
+    if event.type == QUIT:
+      pygame.quit()
+      sys.exit()            
+    if event.type == pygame.KEYDOWN:
+        if event.key == K_SPACE:  
+          if menu_pos_selecionada == 0:
+            fase_1 = True 
+          if menu_pos_selecionada == 1:
+            opcao_instrucoes_menu = True
+          if menu_pos_selecionada == 2:
+            opcao_ajustes_menu = True     
+        
+        if event.key == K_DOWN:
+          menu_pos_selecionada+=1
+          if menu_pos_selecionada >2:
+            menu_pos_selecionada = 2
+        if event.key == K_UP:
+          menu_pos_selecionada-=1
+          if menu_pos_selecionada < 0:
+            menu_pos_selecionada = 0            
+        
+  elementos.moveBG(1, True)
+  elementos.carregaElementosTelaInicial()
+  elementos.navegaMenu(menu_pos_selecionada)
+  elementos.carregaTitulo()
+  pygame.display.flip()
+
 
 
 frame = pygame.draw.rect(screen, (WHITE), Rect((0, 0), (800, 600)))
