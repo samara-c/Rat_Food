@@ -5,10 +5,7 @@ import math
 from pickle import FALSE
 from pygame import mixer
 from playsound import playsound
-
-
-
-
+from pygame.version import PygameVersion
 
 
 pygame.init()
@@ -188,6 +185,8 @@ class ElementosTela() :
     self.som_false = " Desligado"
     self.idioma_pt = " PT-BR"
     self.idioma_en = " EN"
+    self.voltar = "Voltar"
+    self.iterador_idioma = 0
     
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
@@ -203,6 +202,7 @@ class ElementosTela() :
  
  
   def carregaAjustes(self):
+    texto_voltar = self.font_4.render(self.voltar, True, (BLACK))
     texto_som =  self.font_4.render(self.som, True, (BLACK))
     texto_idioma = self.font_4.render(self.idioma, True, (BLACK))
     opcao_ligado =  self.font_4.render(self.som_true, True, (BLACK))
@@ -220,15 +220,18 @@ class ElementosTela() :
     screen.blit(texto_pt,(self.posicao_idioma+140,self.posicao_item-100))
     screen.blit(barra,(self.posicao_idioma+270,self.posicao_item-100))
     screen.blit(texto_en,(self.posicao_idioma+285,self.posicao_item-100))
+    screen.blit(texto_voltar,(self.posicao_idioma+120,self.posicao_item+100))
     
   def navegaMenuAjustesIdioma(self,pos):
     if pos == 0:
       opcao_ligado =  self.font_4.render(self.som_true, True, (BLUE))
-      screen.blit(opcao_ligado,(620,self.posicao_item-50))
+      screen.blit(opcao_ligado,(self.posicao_som+100,self.posicao_item-50))
     elif pos == 1:
       opcao_desligado =  self.font_4.render(self.som_false, True, (BLUE))
-      screen.blit(opcao_desligado,(700,self.posicao_item-50))
-    
+      screen.blit(opcao_desligado,(self.posicao_som+260,self.posicao_item-50))
+    elif pos == 2:
+      texto_voltar =  self.font_4.render(self.voltar, True, (BLUE))
+      screen.blit(texto_voltar,(self.posicao_idioma+120,self.posicao_item+100))
       
       
   def checaSom(self, som):
@@ -573,10 +576,29 @@ while tela_inicial:
       if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+      if event.type == pygame.KEYDOWN:
+        if event.key == K_RIGHT or event.key == K_DOWN:
+          menu_ajustes_selecionado+=1
+          if menu_ajustes_selecionado >2:
+              menu_ajustes_selecionado=2
+        if event.key == K_LEFT or event.key == K_UP:
+          menu_ajustes_selecionado-=1
+          if menu_ajustes_selecionado <0:
+              menu_ajustes_selecionado=0 
+        if event.key == K_SPACE:  
+          if menu_ajustes_selecionado == 0:  
+            elementos.checaSom(True) 
+          if menu_ajustes_selecionado == 1:  
+            elementos.checaSom(False)   
+          if menu_ajustes_selecionado == 2:  
+            opcao_ajustes_menu = False
+            
+                
     
-    elementos.moveBG(1, True)
+    elementos.moveBG(1,True)
     elementos.carregaElementosBase()
     elementos.carregaAjustes()
+    elementos.navegaMenuAjustesIdioma(menu_ajustes_selecionado)
     pygame.display.flip()
   
   while fase_1:
