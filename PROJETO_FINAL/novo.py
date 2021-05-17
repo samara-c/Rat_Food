@@ -55,6 +55,7 @@ pos_y = 100
 clock = pygame.time.Clock()
 vetor_bg = []
 iniciar_musica = True
+vetor_ajustes = []
 
 
 
@@ -89,6 +90,7 @@ fase_3 = False
 tela_inicial = True
 tela_ajustes = False
 menu_pos_selecionada = 0
+menu_ajustes_selecionado = 0
 tela_fase_1 = False
 
 CLOCKTICK = pygame.USEREVENT+1
@@ -178,8 +180,14 @@ class ElementosTela() :
     
     # AJUSTES
     
+    self.posicao_som = 420
+    self.posicao_idioma = 450
     self.som = "Som :"
-    self.idioma = "Idioma: "
+    self.idioma = "Idioma : "
+    self.som_true = " Ligado"
+    self.som_false = " Desligado"
+    self.idioma_pt = " PT-BR"
+    self.idioma_en = " EN"
     
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
@@ -195,12 +203,41 @@ class ElementosTela() :
  
  
   def carregaAjustes(self):
-    self.som =  self.font_4.render(self.som, True, (BLACK))
-    self.idioma = self.font_4.render(self.idioma, True, (BLACK))
+    texto_som =  self.font_4.render(self.som, True, (BLACK))
+    texto_idioma = self.font_4.render(self.idioma, True, (BLACK))
+    opcao_ligado =  self.font_4.render(self.som_true, True, (BLACK))
+    opcao_desligado =  self.font_4.render(self.som_false, True, (BLACK))
+    barra =  self.font_4.render("/", True, (BLACK))
+    texto_pt =  self.font_4.render(self.idioma_pt, True, (BLACK))
+    texto_en = self.font_4.render(self.idioma_en, True, (BLACK)) 
+                   
+      
+    screen.blit(texto_som,(self.posicao_som,self.posicao_item-50))
+    screen.blit(opcao_ligado,(self.posicao_som+100,self.posicao_item-50))
+    screen.blit(barra,(self.posicao_som+240,self.posicao_item-50))
+    screen.blit(opcao_desligado,(self.posicao_som+260,self.posicao_item-50))
+    screen.blit(texto_idioma,(self.posicao_idioma,self.posicao_item-100))
+    screen.blit(texto_pt,(self.posicao_idioma+140,self.posicao_item-100))
+    screen.blit(barra,(self.posicao_idioma+270,self.posicao_item-100))
+    screen.blit(texto_en,(self.posicao_idioma+285,self.posicao_item-100))
     
+  def navegaMenuAjustesIdioma(self,pos):
+    if pos == 0:
+      opcao_ligado =  self.font_4.render(self.som_true, True, (BLUE))
+      screen.blit(opcao_ligado,(620,self.posicao_item-50))
+    elif pos == 1:
+      opcao_desligado =  self.font_4.render(self.som_false, True, (BLUE))
+      screen.blit(opcao_desligado,(700,self.posicao_item-50))
     
-    screen.blit(self.som,(560,self.posicao_item))
-    screen.blit(self.idioma,(520,self.posicao_item+50))
+      
+      
+  def checaSom(self, som):
+    if som == True:
+      self.tocarMusica()
+    if som == False:
+      self.pararMusica()  
+      
+      
   
   def tocarMusica(self):
       mixer.init()
@@ -228,6 +265,10 @@ class ElementosTela() :
     screen.blit(self.nuvem, (120,55))
     screen.blit(self.rato, (520,30))
     elementos.carregaMenu()
+ 
+  def carregaElementosBase(self):
+    screen.blit(self.nuvem, (120,55))
+    
     
   def moveBG(self, velocidade = 1, inicio = False):
     posicao_default = 50
@@ -527,11 +568,15 @@ while tela_inicial:
     pygame.display.flip()
     
     
-  
   while opcao_ajustes_menu:
+    for event in pygame.event.get():   
+      if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    
     elementos.moveBG(1, True)
-    elementos.carregaElementosTelaInicial()
-    elementos.carregaTitulo()
+    elementos.carregaElementosBase()
+    elementos.carregaAjustes()
     pygame.display.flip()
   
   while fase_1:
@@ -638,7 +683,9 @@ while tela_inicial:
             fase_1 = True 
           if menu_pos_selecionada == 1:
             opcao_instrucoes_menu = True   
-        
+          if menu_pos_selecionada == 2:
+            opcao_ajustes_menu = True
+            
         if event.key == K_DOWN:
           menu_pos_selecionada+=1
           if menu_pos_selecionada >2:
@@ -752,7 +799,8 @@ while tela_inicial:
           if menu_pos_selecionada == 1:
             opcao_instrucoes_menu = True
           if menu_pos_selecionada == 2:
-            opcao_ajustes_menu = True     
+            opcao_ajustes_menu = True
+            print ("POSICAO SELECIONADA")     
         
         if event.key == K_DOWN:
           menu_pos_selecionada+=1
