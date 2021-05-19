@@ -190,6 +190,8 @@ class ElementosTela() :
     self.instrucoes_completas = "Utilize as setas do seu teclado"
     self.instrucoes_completas_2 = " para mover o Alfredo e pegar os alimentos saudaveis"
     self.iterador_idioma = 0
+    self.tocar = True
+    self.sound_inst = pygame.mixer.Sound("como_jogar.mp3")
     
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
@@ -202,7 +204,12 @@ class ElementosTela() :
     self.posicao_bg_1 = 0
     self.posicao_bg_2 = 1200
     
- 
+  def tocarInstrucoes(self):
+    if self.som_ligado and self.tocar:        
+      pygame.mixer.find_channel().play(self.sound_inst)     
+      self.tocar = False
+  # def pararInstrucoes(self):
+  #   pygame.mixer.       
   def carregaInstrucoes(self):
     texto_instrucoes = self.font_3.render(self.instrucoes_completas, True, (BLACK))
     texto_instrucoes_2 = self.font_3.render(self.instrucoes_completas_2, True, (BLACK))
@@ -587,14 +594,20 @@ while tela_inicial:
   posicao = 400
   
   while opcao_instrucoes_menu:
+    if elementos.tocar:
+        elementos.tocarInstrucoes()  
     for event in pygame.event.get():   
       if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-              
+      if event.type == pygame.KEYDOWN:
+        if event.key == K_SPACE:  
+            opcao_instrucoes_menu = False 
+            elementos.tocar = True        
     elementos.moveBG(1,True)
     elementos.carregaElementosBase()
     elementos.carregaInstrucoes()
+    
     pygame.display.flip()
     
     
