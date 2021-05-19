@@ -187,6 +187,8 @@ class ElementosTela() :
     self.idioma_pt = " PT-BR"
     self.idioma_en = " EN"
     self.voltar = "Voltar"
+    self.instrucoes_completas = "Utilize as setas do seu teclado"
+    self.instrucoes_completas_2 = " para mover o Alfredo e pegar os alimentos saudaveis"
     self.iterador_idioma = 0
     
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
@@ -201,6 +203,13 @@ class ElementosTela() :
     self.posicao_bg_2 = 1200
     
  
+  def carregaInstrucoes(self):
+    texto_instrucoes = self.font_3.render(self.instrucoes_completas, True, (BLACK))
+    texto_instrucoes_2 = self.font_3.render(self.instrucoes_completas_2, True, (BLACK))
+    texto_voltar = self.font_4.render(self.voltar, True, (BLUE))
+    screen.blit(texto_instrucoes,(self.posicao_idioma-80,self.posicao_item-10))
+    screen.blit(texto_instrucoes_2,(self.posicao_idioma-250,self.posicao_item+30))
+    screen.blit(texto_voltar,(self.posicao_idioma+120,self.posicao_item+100))   
  
   def carregaAjustes(self):
     texto_voltar = self.font_4.render(self.voltar, True, (BLACK))
@@ -581,9 +590,11 @@ while tela_inicial:
     for event in pygame.event.get():   
       if event.type == pygame.QUIT:
             pygame.quit()
-            sys.exit()  
+            sys.exit()
+              
     elementos.moveBG(1,True)
     elementos.carregaElementosBase()
+    elementos.carregaInstrucoes()
     pygame.display.flip()
     
     
