@@ -4,11 +4,11 @@ from random import *
 import math
 from pickle import FALSE
 from pygame import mixer
-from playsound import playsound
 from pygame.version import PygameVersion
 
 
 pygame.init()
+pygame.mixer.init()
 pygame.display.set_caption('Rat Food')
 
 
@@ -100,6 +100,7 @@ lancador_inimigos = True
 opcao_iniciar_menu = True
 opcao_instrucoes_menu = False
 opcao_ajustes_menu = False
+som_elemento = True
 
 POSICOES = [120,270,390,540]
   
@@ -235,16 +236,26 @@ class ElementosTela() :
       
       
   def checaSom(self, som):
-    if som == True:
+    if som == True:  
       self.tocarMusica()
     if som == False:
       self.pararMusica()  
       
       
+  def tocaSomBonus(self, som):
+      if som == True:
+          sound1 = pygame.mixer.Sound("bonus.WAV")
+          pygame.mixer.find_channel().play(sound1)
+          
+  def tocaSomInimigo(self, som):
+      if som == True:
+          sound2 = pygame.mixer.Sound("enemy.WAV")
+          pygame.mixer.find_channel().play(sound2)
   
   def tocarMusica(self):
       mixer.init()
       mixer.music.load('principal.mp3')
+      mixer.music.set_volume(0.2)
       mixer.music.play()
       
    
@@ -438,7 +449,8 @@ class Inimigos():
         del(vetor_inimigos_posicao_x[s])
         del(vetor_inimigos_posicao_y[s])
         del(vetor_inimigos_ativos[s])
-        player.energia-=10   
+        player.energia-=10
+        elementos.tocaSomInimigo(iniciar_musica)   
       s+=1       
         
   def verificaColisao(self, pos_player):
@@ -546,7 +558,8 @@ class Bonus():
         del(vetor_bonus_posicao_x[s])
         del(vetor_bonus_posicao_y[s])
         del(vetor_bonus[s])
-        player.pontos+=5   
+        player.pontos+=5
+        elementos.tocaSomBonus(iniciar_musica)   
       s+=1  
     
           
@@ -565,9 +578,12 @@ while tela_inicial:
   posicao = 400
   
   while opcao_instrucoes_menu:
-    elementos.moveBG(1, True)
-    elementos.carregaElementosTelaInicial()
-    elementos.carregaTitulo()
+    for event in pygame.event.get():   
+      if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()  
+    elementos.moveBG(1,True)
+    elementos.carregaElementosBase()
     pygame.display.flip()
     
     
@@ -586,10 +602,12 @@ while tela_inicial:
           if menu_ajustes_selecionado <0:
               menu_ajustes_selecionado=0 
         if event.key == K_SPACE:  
-          if menu_ajustes_selecionado == 0:  
-            elementos.checaSom(True) 
-          if menu_ajustes_selecionado == 1:  
-            elementos.checaSom(False)   
+          if menu_ajustes_selecionado == 0:
+            iniciar_musica = True    
+            elementos.checaSom(iniciar_musica) 
+          if menu_ajustes_selecionado == 1:
+            iniciar_musica = False    
+            elementos.checaSom(iniciar_musica)   
           if menu_ajustes_selecionado == 2:  
             opcao_ajustes_menu = False
             
