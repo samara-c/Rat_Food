@@ -18,8 +18,8 @@ TAMANHO_TELA_Y = 650
 TAMANHO_INIMIGO_X = 100
 TAMANHO_INIMIGO_Y = 100
 
-VELOCIDADE_BONUS = -4
-VELOCIDADE_INIMIGO = -3
+velocidade_bonus = -2
+velocidade_inimigo = -2
 
 screen = pygame.display.set_mode((TAMANHO_TELA_X,TAMANHO_TELA_Y))
 
@@ -32,6 +32,7 @@ vator_bonus_pontos = []
 vetor_bonus =  []
 vetor_bonus_posicao_y = []
 vetor_bonus_posicao_x = []
+vetor_bonus_velocidade = []
 bonus_v = []
 bonus_pontos = []
 bonus_pos = []
@@ -43,6 +44,7 @@ vetor_inimigos_pontos = []
 vetor_inimigos = []
 vetor_inimigos_posicao_x = []
 vetor_inimigos_posicao_y = []
+vetor_inimigos_velocidade = []
 vetor_inimigos_ativos = []
 pos_inimigos = []
 sprites = []
@@ -141,7 +143,19 @@ class Player():
     self.energia=1000
 
 
-   
+
+class Ranking():
+  def __init__(self):
+    self.path = "ranking//"
+    self.arquivo = self.path+"ranking.txt"
+         
+  
+  def leRanking(self): 
+    self.arquivo_ranking = open(self.arquivo, 'r')
+    print(self.arquivo_ranking.readlines())
+    self.arquivo_ranking.close()
+    
+    
 
 class ElementosTela() :
   
@@ -407,7 +421,7 @@ class Inimigos():
     vetor_inimigos.append(self.inimigo3)
     vetor_inimigos.append(self.inimigo4)
     vetor_inimigos.append(self.inimigo5)
-    print("O tamanho do vetor eh "+str(len(vetor_inimigos)))
+    
    
    
   def deletaInimigo(self):
@@ -417,8 +431,7 @@ class Inimigos():
         del(vetor_inimigos_posicao_x[c])
         del(vetor_inimigos_posicao_y[c])
         del(vetor_inimigos_ativos[c])
-        print(str(len(vetor_inimigos_ativos)))
-        print(str(len(vetor_inimigos_posicao_x)))
+        del(vetor_inimigos_velocidade[c])
       c+=1    
     
   def sorteiaInimigo(self):
@@ -428,29 +441,34 @@ class Inimigos():
     num = randint(0,50)
     if self.iterador==num:
       inimigoObj.lancaInimigo()
-      print(str(self.iterador))
-      print(str(num))
       self.iterador = -1
     if self.iterador>limite:
       self.iterador=-1      
 
   def lancaInimigo(self):
-    print(str(lancador_inimigos))
     if lancador_inimigos == True:
       posicao = POSICOES[randint(0,3)]
       inimigoPosicao = randint(0,len(vetor_inimigos)-1)
       vetor_inimigos_ativos.append(vetor_inimigos[inimigoPosicao])
       vetor_inimigos_posicao_y.append(posicao)
       vetor_inimigos_posicao_x.append(1300)
+      valor = randint(0,3)
+      vetor_inimigos_velocidade.append(valor)
 
-  def moveInimigo(self, k):
+  def moveInimigo(self, k, fase):
     i = 0
-    if (len(vetor_inimigos_ativos) < k+1): 
-      while i<(len(vetor_inimigos_ativos)):
-        vetor_inimigos_posicao_x[i] += VELOCIDADE_INIMIGO
-        screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
-        i+=1
-        
+    if (len(vetor_inimigos_ativos) < k+1):
+      if (fase == "1"):   
+          while i<(len(vetor_inimigos_ativos)):
+            vetor_inimigos_posicao_x[i] += velocidade_inimigo-vetor_inimigos_velocidade[i]
+            screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
+            i+=1
+      elif (fase == "2"):   
+          while i<(len(vetor_inimigos_ativos)):
+            vetor_inimigos_posicao_x[i] += velocidade_inimigo-2-vetor_inimigos_velocidade[i]
+            screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
+            i+=1  
+            
   def checaColisaoinimigos (self, image_rect):
     i  = 0
     vetor_colisao = []
@@ -465,6 +483,7 @@ class Inimigos():
         del(vetor_inimigos_posicao_x[s])
         del(vetor_inimigos_posicao_y[s])
         del(vetor_inimigos_ativos[s])
+        del(vetor_inimigos_velocidade[s])
         player.energia-=10
         elementos.tocaSomInimigo(iniciar_musica)   
       s+=1       
@@ -527,6 +546,7 @@ class Bonus():
         del(vetor_bonus_posicao_x[c])
         del(vetor_bonus_posicao_y[c])
         del(vetor_bonus[c])
+        del (vetor_bonus_velocidade[c])
       c+=1  
   
   def sorteiaBonus(self):
@@ -551,15 +571,23 @@ class Bonus():
       vetor_bonus.append(bonus_v[bonusPosicao])
       vetor_bonus_posicao_y.append(posicao)
       vetor_bonus_posicao_x.append(1300)
+      valor = randint(0,3)
+      vetor_bonus_velocidade.append(valor)
       
-  def moveBonus(self, k):
+      
+  def moveBonus(self, k, fase):
     i = 0
-    if (len(vetor_bonus) < k+1): 
-      while i<(len(vetor_bonus)):
-        vetor_bonus_posicao_x[i] += VELOCIDADE_BONUS
-        screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
-        i+=1  
-        
+    if (len(vetor_bonus) < k+1):
+      if (fase == "1"):   
+          while i<(len(vetor_bonus)):
+            vetor_bonus_posicao_x[i] += velocidade_bonus-vetor_bonus_velocidade[i]
+            screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
+            i+=1  
+      elif (fase == "2"):   
+          while i<(len(vetor_bonus)):
+            vetor_bonus_posicao_x[i] += velocidade_bonus-2-vetor_bonus_velocidade[i]
+            screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
+            i+=1    
         
   def checaColisaoBonus (self, image_rect):
     i  = 0
@@ -574,6 +602,7 @@ class Bonus():
         del(vetor_bonus_posicao_x[s])
         del(vetor_bonus_posicao_y[s])
         del(vetor_bonus[s])
+        del(vetor_bonus_velocidade[s])
         player.pontos+=5
         elementos.tocaSomBonus(iniciar_musica)   
       s+=1  
@@ -583,6 +612,7 @@ class Bonus():
 player = Player()
 inimigoObj = Inimigos()
 bonusObj = Bonus()
+rankingObj = Ranking()
 
 player_2 = Player()
 inimigoObj_2 = Inimigos()
@@ -628,12 +658,15 @@ while tela_inicial:
         if event.key == K_SPACE:  
           if menu_ajustes_selecionado == 0:
             iniciar_musica = True    
-            elementos.checaSom(iniciar_musica) 
+            elementos.checaSom(iniciar_musica)
+            rankingObj.leRanking() 
           if menu_ajustes_selecionado == 1:
             iniciar_musica = False    
-            elementos.checaSom(iniciar_musica)   
+            elementos.checaSom(iniciar_musica)
+            rankingObj.leRanking()   
           if menu_ajustes_selecionado == 2:  
             opcao_ajustes_menu = False
+            rankingObj.leRanking()
             
                 
     
@@ -645,7 +678,7 @@ while tela_inicial:
   
   while fase_1:
     
-    
+    fase = "1"
    
     for event in pygame.event.get():
        
@@ -717,9 +750,9 @@ while tela_inicial:
    
     screen.blit(sprites[pos_sprite], image_rect)  
     bonusObj.checaColisaoBonus(image_rect)
-    bonusObj.moveBonus(3)
+    bonusObj.moveBonus(3, fase)
     inimigoObj.checaColisaoinimigos(image_rect)
-    inimigoObj.moveInimigo(5)
+    inimigoObj.moveInimigo(5, fase)
     screen.blit(relogio, (1035,7))
     timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
     screen.blit(timer1, (1110, 10))
@@ -762,7 +795,8 @@ while tela_inicial:
   
   # INICIO FASE 2          
   while fase_2:
-    
+      
+    fase_n2 = "2"
      
     for event in pygame.event.get():
         
@@ -832,9 +866,9 @@ while tela_inicial:
    
     screen.blit(sprites[pos_sprite], image_rect)  
     bonusObj_2.checaColisaoBonus(image_rect)
-    bonusObj_2.moveBonus(3)
+    bonusObj_2.moveBonus(3, fase_n2)
     inimigoObj_2.checaColisaoinimigos(image_rect)
-    inimigoObj_2.moveInimigo(5)
+    inimigoObj_2.moveInimigo(5, fase_n2)
     screen.blit(relogio, (1035,7))
     timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
     screen.blit(timer1, (1110, 10))
