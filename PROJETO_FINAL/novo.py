@@ -319,8 +319,6 @@ class ElementosTela() :
     if inicio:
       posicao_default = 0
     screen.blit(vetor_bg[0],(self.posicao_bg_1,posicao_default))
-    print(str(self.posicao_bg_1) +  "POSICAO 1")
-    print(str(self.posicao_bg_2) + "POSICAO 2") 
     screen.blit(vetor_bg[1],(self.posicao_bg_2,posicao_default))
     
     if self.posicao_bg_1 <=-1200:
@@ -435,10 +433,8 @@ class Inimigos():
       c+=1    
     
   def sorteiaInimigo(self):
-    print(str(self.iterador))
-    print(str(len(vetor_inimigos)))
     limite = 50
-    num = randint(0,50)
+    num = randint(0,limite)
     if self.iterador==num:
       inimigoObj.lancaInimigo()
       self.iterador = -1
@@ -468,7 +464,11 @@ class Inimigos():
             vetor_inimigos_posicao_x[i] += velocidade_inimigo-2-vetor_inimigos_velocidade[i]
             screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
             i+=1  
-            
+      elif (fase == "3"):   
+          while i<(len(vetor_inimigos_ativos)):
+            vetor_inimigos_posicao_x[i] += velocidade_inimigo-4-vetor_inimigos_velocidade[i]
+            screen.blit(vetor_inimigos_ativos[i],(vetor_inimigos_posicao_x[i], vetor_inimigos_posicao_y[i]))
+            i+=1       
   def checaColisaoinimigos (self, image_rect):
     i  = 0
     vetor_colisao = []
@@ -479,7 +479,6 @@ class Inimigos():
     s = 0
     while s<(len(vetor_colisao)):
       if image_rect.colliderect(vetor_colisao[s]):
-        print("COLIDIU")
         del(vetor_inimigos_posicao_x[s])
         del(vetor_inimigos_posicao_y[s])
         del(vetor_inimigos_ativos[s])
@@ -492,7 +491,6 @@ class Inimigos():
     i = 0
     while i < (len(vetor_inimigos_ativos)):
       if (vetor_inimigos_posicao_x[i] <= pos_player) and (vetor_inimigos_posicao_y[i] >= 185):
-        print( "COLIDIU")
         i+=1
     
           
@@ -550,21 +548,17 @@ class Bonus():
       c+=1  
   
   def sorteiaBonus(self):
-    print(str(self.iterador))
-    print(str(len(vetor_bonus)))
     limite = 50
     num = randint(0,50)
     if self.iterador==num:
       bonusObj.lancaBonus()
-      print(str(self.iterador))
-      print(str(num))
-      print(str(len(vetor_bonus)))
+      
       self.iterador = -1
     if self.iterador>limite:
       self.iterador=-1  
   
   def lancaBonus(self):
-    print(str(lancador_bonus))
+    
     if lancador_bonus == True:
       posicao = POSICOES[randint(0,3)]
       bonusPosicao = randint(0,len(bonus_v)-1)
@@ -587,7 +581,12 @@ class Bonus():
           while i<(len(vetor_bonus)):
             vetor_bonus_posicao_x[i] += velocidade_bonus-2-vetor_bonus_velocidade[i]
             screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
-            i+=1    
+            i+=1
+      elif (fase == "3"):   
+          while i<(len(vetor_bonus)):
+            vetor_bonus_posicao_x[i] += velocidade_bonus-4-vetor_bonus_velocidade[i]
+            screen.blit(vetor_bonus[i],(vetor_bonus_posicao_x[i], vetor_bonus_posicao_y[i]))
+            i+=1          
         
   def checaColisaoBonus (self, image_rect):
     i  = 0
@@ -609,15 +608,7 @@ class Bonus():
     
           
 
-player = Player()
-inimigoObj = Inimigos()
-bonusObj = Bonus()
 rankingObj = Ranking()
-
-player_2 = Player()
-inimigoObj_2 = Inimigos()
-bonusObj_2 = Bonus()
-
 elementos = ElementosTela()
 elementos.tocarMusica()
 while tela_inicial:
@@ -777,7 +768,10 @@ while tela_inicial:
     if event.type == pygame.KEYDOWN:
         if event.key == K_SPACE:  
           if menu_pos_selecionada == 0:
-            fase_1 = True 
+            fase_1 = True
+            player = Player()
+            inimigoObj = Inimigos()
+            bonusObj = Bonus() 
           if menu_pos_selecionada == 1:
             opcao_instrucoes_menu = True   
           if menu_pos_selecionada == 2:
@@ -815,6 +809,7 @@ while tela_inicial:
    
     if temporizador == 0:
       fase_2 = False
+      fase_3 = True
       temporizador = 60
       elementos.reiniciar_vetores_e_pontos()
       break
@@ -830,12 +825,12 @@ while tela_inicial:
     else:
       lancador_bonus = False  
    
-    bonusObj_2.iterador+=1
-    bonusObj_2.deletaBonus()
-    bonusObj_2.sorteiaBonus()
+    bonusObj.iterador+=1
+    bonusObj.deletaBonus()
+    bonusObj.sorteiaBonus()
     
     
-    energia = player_2.energia
+    energia = player.energia
     if energia <0:
       energia = 0
     
@@ -845,9 +840,9 @@ while tela_inicial:
       lancador_inimigos = False  
    
    # inimigoObj.verificaColisao(pos_y)
-    inimigoObj_2.iterador+=1
-    inimigoObj_2.deletaInimigo()
-    inimigoObj_2.sorteiaInimigo()
+    inimigoObj.iterador+=1
+    inimigoObj.deletaInimigo()
+    inimigoObj.sorteiaInimigo()
     
       
               
@@ -865,10 +860,10 @@ while tela_inicial:
     
    
     screen.blit(sprites[pos_sprite], image_rect)  
-    bonusObj_2.checaColisaoBonus(image_rect)
-    bonusObj_2.moveBonus(3, fase_n2)
-    inimigoObj_2.checaColisaoinimigos(image_rect)
-    inimigoObj_2.moveInimigo(5, fase_n2)
+    bonusObj.checaColisaoBonus(image_rect)
+    bonusObj.moveBonus(3, fase_n2)
+    inimigoObj.checaColisaoinimigos(image_rect)
+    inimigoObj.moveInimigo(5, fase_n2)
     screen.blit(relogio, (1035,7))
     timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
     screen.blit(timer1, (1110, 10))
@@ -884,6 +879,97 @@ while tela_inicial:
     pygame.display.flip()      
     pos_sprite+=1
     clock.tick(60)
+
+  while fase_3:
+      
+        fase_n3 = "3"
+         
+        for event in pygame.event.get():
+            
+            
+           
+          if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+          if event.type == CLOCKTICK:
+                temporizador = temporizador -1
+                                
+        pressed = pygame.key.get_pressed()
+          
+        pos_y -= (pressed[pygame.K_UP] - pressed[pygame.K_DOWN]) * player.velocidade_player
+        pos_y += (pressed[pygame.K_DOWN] - pressed[pygame.K_UP]) * player.peso_player
+       
+        if temporizador == 0:
+          fase_3 = False
+          temporizador = 60
+          elementos.reiniciar_vetores_e_pontos()
+          break
+          
+        if pos_y <60:
+          pos_y =60
+        if pos_y > 500:
+          pos_y = 500   
+         
+       
+        if (len(vetor_bonus) < 3):
+          lancador_bonus = True
+        else:
+          lancador_bonus = False  
+       
+        bonusObj.iterador+=1
+        bonusObj.deletaBonus()
+        bonusObj.sorteiaBonus()
+        
+        
+        energia = player.energia
+        if energia <0:
+          energia = 0
+        
+        if (len(vetor_inimigos_ativos) < 4):
+          lancador_inimigos = True
+        else:
+          lancador_inimigos = False  
+       
+       # inimigoObj.verificaColisao(pos_y)
+        inimigoObj.iterador+=1
+        inimigoObj.deletaInimigo()
+        inimigoObj.sorteiaInimigo()
+        
+          
+                  
+            
+        if (pos_sprite > len(sprites) -1):
+              
+              pos_sprite = 0
+            
+        elementos.moveBG()
+        pygame.draw.rect(screen, BLACK,(0,0,1200,50))
+        
+        
+        
+        image_rect = sprites[pos_sprite].get_rect(topleft=(pos_x,pos_y))
+        
+       
+        screen.blit(sprites[pos_sprite], image_rect)  
+        bonusObj.checaColisaoBonus(image_rect)
+        bonusObj.moveBonus(3, fase_n3)
+        inimigoObj.checaColisaoinimigos(image_rect)
+        inimigoObj.moveInimigo(5, fase_n3)
+        screen.blit(relogio, (1035,7))
+        timer1 = elementos.font_3.render(str(temporizador), True, (WHITE))
+        screen.blit(timer1, (1110, 10))
+        fase = elementos.font_3.render("Fase 3", True, (WHITE)) 
+        screen.blit(fase, (50, 10))
+        score = elementos.font_3.render("Placar: ", True, (WHITE)) 
+        screen.blit(score,(850,10))
+        pontos = elementos.font_3.render(str(player.pontos), True, (YELLOW))
+        screen.blit(pontos,(960,10))
+        elementos.carregaBarraEnergia(elementos.calculaBarraEnergia(energia))
+        
+        
+        pygame.display.flip()      
+        pos_sprite+=1
+        clock.tick(60)  
     
 
   for event in pygame.event.get():
@@ -898,7 +984,7 @@ while tela_inicial:
             opcao_instrucoes_menu = True
           if menu_pos_selecionada == 2:
             opcao_ajustes_menu = True
-            print ("POSICAO SELECIONADA")     
+                 
         
         if event.key == K_DOWN:
           menu_pos_selecionada+=1
