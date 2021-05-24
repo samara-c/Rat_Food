@@ -5,6 +5,7 @@ import math
 from pickle import FALSE
 from pygame import mixer
 from pygame.version import PygameVersion
+from pygame.display import flip
 
 
 pygame.init()
@@ -66,6 +67,7 @@ RED = (255, 74, 73)
 DARK_BLUE = (15, 41, 71)
 BLUE = (49,171,232)
 GREEN = (71,255,43)
+PURPLE = (126,31,235)
 TAMANHO_FONTE_FASES = 200  
 
 movimento_positivo = False
@@ -88,6 +90,7 @@ fase_2 = False
 fase_3 = False
 tela_inicial = True
 tela_ajustes = False
+tela_nome = False
 menu_pos_selecionada = 0
 menu_ajustes_selecionado = 0
 tela_fase_1 = False
@@ -148,15 +151,17 @@ class Ranking():
   def __init__(self):
     self.path = "ranking//"
     self.arquivo = self.path+"ranking.txt"
+    
          
   
   def leRanking(self): 
     self.arquivo_ranking = open(self.arquivo, 'r')
     print(self.arquivo_ranking.readlines())
     self.arquivo_ranking.close()
-    
-    
-
+  
+  
+  
+      
 class ElementosTela() :
   
   def __init__(self):
@@ -194,6 +199,9 @@ class ElementosTela() :
     
     self.posicao_som = 420
     self.posicao_idioma = 450
+    self.vamos = "Decolar!"
+    self.bem_vindo = "Bem vindo, copiloto!"
+    self.como_se_chama = "Como podemos te chamar?"
     self.som = "Som :"
     self.idioma = "Idioma : "
     self.som_true = " Ligado"
@@ -210,13 +218,48 @@ class ElementosTela() :
     self.energia_icone = pygame.image.load(self.path_elements+'energy.png').convert_alpha()
     self.energia_icone = pygame.transform.scale(self.energia_icone, (35,35))
     self.tamanho_barra = 100 
- 
+    
+    self.note = pygame.image.load(self.path_elements+'note.png').convert_alpha()
+    self.note = pygame.transform.scale(self.note, (600,606))
+    
+    self.note_2 = pygame.image.load(self.path_elements+'note_2.png').convert_alpha()
+    self.note_2 = pygame.transform.scale(self.note_2, (700,700))
+    
+    self.note_3 = pygame.image.load(self.path_elements+'note_3.png').convert_alpha()
+    self.note_3 = pygame.transform.scale(self.note_3, (700,708))
     #ELEMENTOS SONOROS
     self.som_ligado = True
     
     
     self.posicao_bg_1 = 0
     self.posicao_bg_2 = 1200
+    
+    self.player_name = ""
+  
+  
+  
+  def carregaTelaJogador(self):
+   screen.blit(self.note_2,(250,-60))
+   texto = self.font_3.render(self.bem_vindo, True, (BLACK))
+   texto_2 = self.font_3.render(self.como_se_chama, True, (BLACK))
+   texto_3 = self.font_4.render(self.vamos, True, (BLUE))
+    
+   screen.blit(texto,(460, 170))
+   screen.blit(texto_2,(410,220))
+   screen.blit(texto_3,(545,460)) 
+      
+        
+  
+  def leNomeJogador(self, key):
+      if (len(self.player_name) < 8):
+          self.player_name+=str(key)
+      
+      
+  def escreveNomeJogador(self):
+      texto = self.font_4.render(self.player_name.upper(), True, (PURPLE))
+      screen.blit(texto,(525,300))
+      
+  
     
   def tocarInstrucoes(self):
     if self.som_ligado and self.tocar:        
@@ -667,6 +710,34 @@ while tela_inicial:
     elementos.navegaMenuAjustesIdioma(menu_ajustes_selecionado)
     pygame.display.flip()
   
+  while tela_nome:
+   enviar = True     
+   for event in pygame.event.get():   
+      if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+      if event.type == pygame.KEYDOWN:
+          
+          if event.key == K_SPACE:
+              tela_nome = False 
+              fase_1 = True
+          
+          if event.key == K_BACKSPACE:
+              elementos.player_name = elementos.player_name[:-1]
+              enviar = False       
+          
+          if event.key == K_CAPSLOCK or event.key == K_UP or event.key == K_DOWN or event.key == K_LEFT or event.key == K_RIGHT:
+              enviar = False
+              
+          key=event.key
+          if enviar:
+              elementos.leNomeJogador(chr(key))
+              
+   elementos.moveBG(1, True)
+   elementos.carregaTelaJogador()
+   elementos.escreveNomeJogador()
+   pygame.display.flip()
+  
   while fase_1:
     
     fase = "1"
@@ -768,7 +839,7 @@ while tela_inicial:
     if event.type == pygame.KEYDOWN:
         if event.key == K_SPACE:  
           if menu_pos_selecionada == 0:
-            fase_1 = True
+            tela_nome = True
             player = Player()
             inimigoObj = Inimigos()
             bonusObj = Bonus() 
@@ -979,7 +1050,7 @@ while tela_inicial:
     if event.type == pygame.KEYDOWN:
         if event.key == K_SPACE:  
           if menu_pos_selecionada == 0:
-            fase_1 = True 
+            tela_nome = True 
           if menu_pos_selecionada == 1:
             opcao_instrucoes_menu = True
           if menu_pos_selecionada == 2:
