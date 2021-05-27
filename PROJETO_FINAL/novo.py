@@ -47,6 +47,7 @@ vetor_inimigos_posicao_x = []
 vetor_inimigos_posicao_y = []
 vetor_inimigos_velocidade = []
 vetor_inimigos_ativos = []
+vetor_direcionais = []
 pos_inimigos = []
 sprites = []
 pos_sprite = 0
@@ -68,6 +69,7 @@ DARK_BLUE = (15, 41, 71)
 BLUE = (49,171,232)
 GREEN = (71,255,43)
 PURPLE = (126,31,235)
+DARK_RED = (214,11,9)
 TAMANHO_FONTE_FASES = 200  
 
 movimento_positivo = False
@@ -82,6 +84,9 @@ background_2 = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_
 background_inicio = background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
 vetor_bg.append(background)
 vetor_bg.append(background_2)
+
+icone = pygame.image.load("elements//rato.png").convert()
+pygame.display.set_icon(icone)
 
 
 
@@ -190,8 +195,7 @@ class ElementosTela() :
     self.font_titulo = pygame.font.Font(self.path+"PaperPlane-jE1R7.otf", 110)
     self.rato = pygame.image.load("player//"+'RatPilot1.png').convert_alpha()
     self.rato = pygame.transform.scale(self.rato, (200, 200))
-    
-#     self.font_titulo = pygame.font.Font(self.path+"RaptorAttack-B0Gd.ttf", 40)
+    self.rato_1 = pygame.transform.scale(self.rato, (80, 80))
     
     self.font_fases = pygame.font.Font("fonts//HARD ROCK.ttf", TAMANHO_FONTE_FASES)
     
@@ -214,6 +218,9 @@ class ElementosTela() :
     
     self.posicao_som = 420
     self.posicao_idioma = 450
+    self.continuar = "Continuar"
+    self.texto_fim = "Agradecemos sua ajuda, copiloto "
+    self.texto_pontos = "Voce fez "
     self.vamos = "Decolar!"
     self.bem_vindo = "Bem vindo, copiloto!"
     self.como_se_chama = "Como podemos te chamar?"
@@ -245,16 +252,79 @@ class ElementosTela() :
     self.posicao_bg_1 = 0
     self.posicao_bg_2 = 1200
     
-    self.player_name = ""
+    self.player_name = "JOGADOR"
   
-    self.trophy = pygame.image.load(self.path_elements+'trophy.png').convert_alpha()
-    self.trophy = pygame.transform.scale(self.trophy, (400,400)) 
+    self.trophy = pygame.image.load(self.path_elements+'Trofeu.png').convert_alpha()
+    self.trophy = pygame.transform.scale(self.trophy, (400,400))
+    
+    #DIRECIONAIS
+    self.escala = (200,120)
+    
+    self.direcional_direito = pygame.image.load(self.path_elements+'Direcional_Direita.png').convert_alpha()
+    self.direcional_direito = pygame.transform.scale(self.direcional_direito, self.escala)
+    
+    self.direcional_esquerdo = pygame.image.load(self.path_elements+'Direcional_Esquerda.png').convert_alpha()
+    self.direcional_esquerdo = pygame.transform.scale(self.direcional_esquerdo, self.escala)
+    
+    self.direcional_cima = pygame.image.load(self.path_elements+'Direcional_Cima.png').convert_alpha()
+    self.direcional_cima = pygame.transform.scale(self.direcional_cima, self.escala)
+    
+    self.direcional_baixo = pygame.image.load(self.path_elements+'Direcional_Baixo.png').convert_alpha()
+    self.direcional_baixo = pygame.transform.scale(self.direcional_baixo, self.escala)
+    
+    self.bonus1 = pygame.image.load("bonus//banana.png").convert_alpha()
+    self.bonus1 = pygame.transform.scale(self.bonus1, (30, 30 ))
+    
+    vetor_direcionais.append(self.direcional_esquerdo)
+    vetor_direcionais.append(self.direcional_cima)
+    vetor_direcionais.append(self.direcional_direito)
+    vetor_direcionais.append(self.direcional_baixo)
+    
+    self.pos_teclado = (610,180)
+    self.pos_iterador = 0
+    self.pos_relativa_x, self.pos_relativa_y = 400,190
+     
+  def checaPos(self):
+      self.pos_iterador+=1
+      if self.pos_iterador > 4000:
+          self.pos_iterador = 0
+  
+  def carregaImagemDirecionais (self , pos):
+   elementos.checaPos()   
+   if (pos>=0 and pos<=1000):
+       screen.blit(vetor_direcionais[0], self.pos_teclado)
+       screen.blit(self.bonus1, (self.pos_relativa_x, self.pos_relativa_y))
+       screen.blit(self.rato_1, (self.pos_relativa_x - 100, self.pos_relativa_y-10))
+   
+   if (pos>=1001 and pos<=2000):
+       screen.blit(vetor_direcionais[1], self.pos_teclado)
+       screen.blit(self.bonus1, (self.pos_relativa_x, self.pos_relativa_y))
+       screen.blit(self.rato_1, (self.pos_relativa_x-20, self.pos_relativa_y-100))
+       
+   if (pos>=2001 and pos<=3000):
+       screen.blit(vetor_direcionais[2], self.pos_teclado)
+       screen.blit(self.bonus1, (self.pos_relativa_x, self.pos_relativa_y))
+       screen.blit(self.rato_1, (self.pos_relativa_x+50, self.pos_relativa_y-10))
+       
+   if (pos>=3001 and pos<=4000):
+       screen.blit(vetor_direcionais[3], self.pos_teclado)        
+       screen.blit(self.bonus1, (self.pos_relativa_x, self.pos_relativa_y))   
+       screen.blit(self.rato_1, (self.pos_relativa_x-20, self.pos_relativa_y+50))
       
-  def exibePontos (self, pontos):
-   screen.blit(self.trophy, (400,50))
+  def exibePontos (self, pontos):   
+   screen.blit(self.trophy, (400,40))
+   texto_pontos = self.texto_pontos+str(player.pontos)+" pontos"
+   texto_fim = self.texto_fim+self.player_name.upper()+"!"   
+   texto = self.font_3.render(texto_fim, True, (BLACK))
+   texto_2 = self.font_3.render(texto_pontos, True, (BLACK))
+   texto_3 = self.font_4.render(self.continuar, True, (BLUE)) 
+   screen.blit(texto, (285,450))
+   screen.blit(texto_2, (475,480))
+   screen.blit(texto_3, (550,550))
+   
    print(str(player.pontos))   
   
-  def carregaTelaJogador(self):
+  def carregaTelaJogador(self):  
    screen.blit(self.note_2,(250,-60))
    texto = self.font_3.render(self.bem_vindo, True, (BLACK))
    texto_2 = self.font_3.render(self.como_se_chama, True, (BLACK))
@@ -272,7 +342,7 @@ class ElementosTela() :
       
       
   def escreveNomeJogador(self):
-      texto = self.font_4.render(self.player_name.upper(), True, (PURPLE))
+      texto = self.font_4.render(self.player_name.upper(), True, (DARK_RED))
       screen.blit(texto,(525,300))
       
   
@@ -345,7 +415,7 @@ class ElementosTela() :
       mixer.init()
       mixer.music.load('principal.mp3')
       mixer.music.set_volume(0.2)
-      mixer.music.play()
+      mixer.music.play(loops = 30, start = 0.0)
       
    
   def pararMusica(self):
@@ -653,18 +723,23 @@ class Bonus():
     while i < len(vetor_bonus):
       var = vetor_bonus[i].get_rect(topleft=(vetor_bonus_posicao_x[i],vetor_bonus_posicao_y[i]))
       vetor_colisao.append(var)
-      i+=1 
-    s = 0
-    while s<(i):
-      if image_rect.colliderect(vetor_colisao[s]):
-        del(vetor_bonus_posicao_x[s])
-        del(vetor_bonus_posicao_y[s])
-        del(vetor_bonus[s])
-        del(vetor_bonus_velocidade[s])
-        player.pontos+=5
-        elementos.tocaSomBonus(iniciar_musica)   
-      s+=1  
-    
+      i+=1
+    try :   
+        s = 0
+        while s<(i):
+          if image_rect.colliderect(vetor_colisao[s]):
+            del(vetor_bonus_posicao_x[s])
+            del(vetor_bonus_posicao_y[s])
+            del(vetor_bonus[s])
+            del(vetor_bonus_velocidade[s])
+            player.pontos+=5
+            elementos.tocaSomBonus(iniciar_musica)   
+          s+=1  
+    except IndexError:
+        print("HOIVE UM ERRO AQUI")
+        print (str(i))
+        print (str(s))
+        
           
 
 rankingObj = Ranking()
@@ -687,6 +762,7 @@ while tela_inicial:
     elementos.moveBG(1,True)
     elementos.carregaElementosBase()
     elementos.carregaInstrucoes()
+    elementos.carregaImagemDirecionais(elementos.pos_iterador)
     
     pygame.display.flip()
     
@@ -1074,8 +1150,8 @@ while tela_inicial:
           
           if event.key == K_SPACE:
               tela_trofeu = False 
-                 
-   elementos.moveBG(1,True)
+   
+   elementos.moveBG(1, True)              
    elementos.exibePontos(player.pontos)
    pygame.display.flip()   
 
