@@ -1,8 +1,8 @@
-import sys, pygame
+import sys
+import pygame 
 from pygame.locals import *
 from random import *
 import math
-from pickle import FALSE
 from pygame import mixer
 from pygame.version import PygameVersion
 from pygame.display import flip
@@ -78,7 +78,7 @@ relogio = pygame.image.load('elements//clock.png').convert_alpha()
 relogio = pygame.transform.scale(relogio, (90, 40)) 
 
 
-background = pygame.image.load('bg11.jpg').convert()
+background = pygame.image.load('elements//bg11.jpg').convert()
 background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50))
 background_2 = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y - 50)) 
 background_inicio = background = pygame.transform.scale(background, (TAMANHO_TELA_X, TAMANHO_TELA_Y)) 
@@ -282,7 +282,7 @@ class ElementosTela() :
     
     self.pos_teclado = (610,180)
     self.pos_iterador = 0
-    self.pos_relativa_x, self.pos_relativa_y = 400,190
+    self.pos_relativa_x, self.pos_relativa_y = 450,190
      
   def checaPos(self):
       self.pos_iterador+=1
@@ -1183,7 +1183,6 @@ while tela_inicial:
   elementos.navegaMenu(menu_pos_selecionada)
   elementos.carregaTitulo()
   pygame.display.flip()
-
 
 
 frame = pygame.draw.rect(screen, (WHITE), Rect((0, 0), (800, 600)))
